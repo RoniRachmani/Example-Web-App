@@ -4,17 +4,20 @@ import App from './App.jsx'
 import './index.css'
 
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBNQuE3-cEx4s3hfu9s-F11pXCeJlJL12o",
-  authDomain: "full-stack-react-934cb.firebaseapp.com",
-  projectId: "full-stack-react-934cb",
-  storageBucket: "full-stack-react-934cb.appspot.com",
-  messagingSenderId: "710941682797",
-  appId: "1:710941682797:web:98b92b892648986d4e2364"
+  apiKey: "AIzaSyBOvRp1nW0P7L6-A5gdGZtOoZxVQyfX_aU",
+  authDomain: "full-stack-react-493e2.firebaseapp.com",
+  projectId: "full-stack-react-493e2",
+  storageBucket: "full-stack-react-493e2.firebasestorage.app",
+  messagingSenderId: "899179658141",
+  appId: "1:899179658141:web:f2c9005f4ce13eaa1e8d74",
+  measurementId: "G-4WEWF7PCTH"
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
