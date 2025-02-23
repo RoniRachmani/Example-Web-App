@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://miniature-trout-gxv9wvv5r65cwjq-8000.app.github.dev',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       }
     }
