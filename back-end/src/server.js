@@ -23,9 +23,9 @@ app.use(express.json());
 let db;
 
 async function connectToDB() {
-  const uri = process.env.MONGODB_USERNAME
-    ? `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.yyink.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
-    : 'mongodb://127.0.0.1:27017';
+  const uri = !process.env.MONGODB_USERNAME
+    ? 'mongodb://127.0.0.1:27017'
+    : `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.yyink.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
   const client = new MongoClient(uri, {
     serverApi: {
@@ -52,7 +52,7 @@ app.get('/api/articles/:name', async (req, res) => {
   res.json(article);
 });
 
-app.use(async function(req, res, next) {
+app.use(async function (req, res, next) {
   const { authtoken } = req.headers;
 
   if (authtoken) {
@@ -105,7 +105,7 @@ const PORT = process.env.PORT || 8000;
 
 async function start() {
   await connectToDB();
-  app.listen(PORT, function() {
+  app.listen(PORT, function () {
     console.log('Server is listening on port ' + PORT);
   });
 }
