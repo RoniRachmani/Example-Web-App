@@ -3,6 +3,8 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -23,9 +25,7 @@ app.use(express.json());
 let db;
 
 async function connectToDB() {
-  const uri = !process.env.MONGODB_USERNAME
-    ? 'mongodb://127.0.0.1:27017'
-    : `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.yyink.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+  const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.yyink.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
   const client = new MongoClient(uri, {
     serverApi: {
