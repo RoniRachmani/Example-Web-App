@@ -1,8 +1,6 @@
 # Example Web App
 
-A full-stack web application built with modern technologies, featuring user authentication and cloud deployment.
-
-This is a modern full-stack JavaScript/Node.js application using the MERN stack (MongoDB, Express, React, Node.js) with additional Firebase integration for authentication.
+A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, React, Node.js) with Firebase authentication.
 
 ## Tech Stack
 
@@ -10,6 +8,7 @@ This is a modern full-stack JavaScript/Node.js application using the MERN stack 
 - React with Vite as the build tool
 - Firebase for authentication
 - Axios for API calls
+- CSS for styling
 
 ### Backend
 - Node.js with Express.js framework
@@ -17,6 +16,8 @@ This is a modern full-stack JavaScript/Node.js application using the MERN stack 
 - RESTful API
 
 ### Deployment
+- VS Code as the IDE
+- GitHub for version control
 - Google Cloud Platform (GCP) for hosting 
 
 ## Features
