@@ -2,21 +2,22 @@
 
 A full-stack web application built with modern technologies, featuring user authentication and cloud deployment.
 
+This is a modern full-stack JavaScript/Node.js application using the MERN stack (MongoDB, Express, React, Node.js) with additional Firebase integration for authentication.
+
 ## Tech Stack
 
 ### Frontend
-- React.js with Vite
-- Firebase Authentication
-- Modern UI/UX
+- React with Vite as the build tool
+- Firebase for authentication
+- Axios for API calls
 
 ### Backend
-- Node.js
-- Express.js
-- MongoDB
+- Node.js with Express.js framework
+- MongoDB Atlas for database
 - RESTful API
 
 ### Deployment
-- Google Cloud Platform
+- Google Cloud Platform (GCP) for hosting 
 
 ## Features
 
