@@ -21,12 +21,11 @@ A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, 
 - Google Cloud Platform (GCP) for hosting 
 
 ## Features
+- Dark or light-themed user interface with a top navigation bar.
+- Public pages: Home, About, Articles listing, individual Article detail.
+- User authentication: Sign In, Create Account, Sign Out.
+- Protected functionality: Adding comments & upvoting (available to logged-in users).
 
-- User authentication with Firebase
-- Secure data storage with MongoDB
-- RESTful API endpoints
-- Cloud-hosted infrastructure
-- Responsive design
 
 ## Prerequisites
 
