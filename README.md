@@ -44,11 +44,11 @@ cd example-web-app
 2. Install dependencies:
 ```bash
 # Install backend dependencies
-cd backend
+cd back-end
 npm install
 
 # Install frontend dependencies
-cd ../frontend
+cd ../front-end
 npm install
 ```
 
@@ -58,11 +58,11 @@ Create `.env` files in both frontend and backend directories with the necessary 
 4. Run the application:
 ```bash
 # Start backend server
-cd backend
+cd back-end
 npm start
 
 # Start frontend development server
-cd frontend
+cd front-end
 npm start
 ```
 
