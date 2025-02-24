@@ -5,7 +5,7 @@ A full-stack web application built with modern technologies, featuring user auth
 ## Tech Stack
 
 ### Frontend
-- React.js
+- React.js with Vite
 - Firebase Authentication
 - Modern UI/UX
 
@@ -28,7 +28,8 @@ A full-stack web application built with modern technologies, featuring user auth
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v16 or higher)
+- Vite (v4.x)
 - MongoDB
 - Firebase account
 - Google Cloud account
@@ -47,8 +48,9 @@ cd example-web-app
 cd back-end
 npm install
 
-# Install frontend dependencies
+# Install frontend dependencies with Vite
 cd ../front-end
+npm create vite@latest . -- --template react-ts
 npm install
 ```
 
@@ -61,10 +63,12 @@ Create `.env` files in both frontend and backend directories with the necessary 
 cd back-end
 npm start
 
-# Start frontend development server
+# Start Vite development server
 cd front-end
-npm start
+npm run dev
 ```
+
+Visit `http://localhost:5173` to view the application.
 
 ## Deployment
 
