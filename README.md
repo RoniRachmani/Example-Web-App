@@ -1,33 +1,42 @@
-# Example Web App
+# Example Web App 🚀
 
 A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, React, Node.js) with Firebase authentication.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Frontend
-- React with Vite as the build tool
-- Firebase for authentication
-- Axios for API calls
-- CSS for styling
+<details>
+<summary><strong>Frontend</strong></summary>
 
-### Backend
-- Node.js with Express.js framework
-- MongoDB Atlas for database
-- RESTful API
+- ⚛️ React with Vite as the build tool
+- 🔐 Firebase for authentication
+- 📡 Axios for API calls
+- 🎨 CSS for styling
+</details>
 
-### Deployment
-- VS Code as the IDE
-- GitHub for version control
-- Google Cloud Platform (GCP) for hosting 
+<details>
+<summary><strong>Backend</strong></summary>
 
-## Features
-- Dark or light-themed user interface with a top navigation bar.
-- Public pages: Home, About, Articles listing, individual Article detail.
-- User authentication: Sign In, Create Account, Sign Out.
-- Protected functionality: Adding comments & upvoting (available to logged-in users).
+- 📦 Node.js with Express.js framework
+- 🗄️ MongoDB Atlas for database
+- 🔄 RESTful API
+</details>
 
+<details>
+<summary><strong>Development & Deployment</strong></summary>
 
-## Prerequisites
+- 💻 VS Code as the IDE
+- 📚 GitHub for version control
+- ☁️ Google Cloud Platform (GCP) for hosting
+</details>
+
+## ✨ Features
+
+- 🌓 Dark or light-themed user interface with a top navigation bar
+- 📱 Public pages: Home, About, Articles listing, individual Article detail
+- 🔐 User authentication: Sign In, Create Account, Sign Out
+- 💬 Protected functionality: Adding comments & upvoting (available to logged-in users)
+
+## 📋 Prerequisites
 
 - Node.js (v16 or higher)
 - Vite (v4.x)
@@ -35,46 +44,60 @@ A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, 
 - Firebase account
 - Google Cloud account
 
-## Setup
+## 🚀 Setup
 
-1. Clone the repository:
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/yourusername/example-web-app.git
 cd example-web-app
 ```
 
-2. Install dependencies:
+### 2. Install dependencies
+
 ```bash
 # Install backend dependencies
 cd back-end
 npm install
 
-# Install frontend dependencies with Vite
+# Install frontend dependencies
 cd ../front-end
 npm create vite@latest . -- --template react-ts
 npm install
 ```
 
-3. Set up environment variables:
-Create `.env` files in both frontend and backend directories with the necessary configuration.
+### 3. Environment Setup
 
-4. Run the application:
+Create `.env` files in both frontend and backend directories:
+
+```env
+# Frontend (.env)
+VITE_API_URL=http://localhost:3000
+VITE_FIREBASE_CONFIG=your_config_here
+
+# Backend (.env)
+PORT=3000
+MONGODB_URI=your_mongodb_uri
+```
+
+### 4. Start the Application
+
 ```bash
-# Start backend server
+# Terminal 1: Backend
 cd back-end
 npm start
 
-# Start Vite development server
+# Terminal 2: Frontend
 cd front-end
 npm run dev
 ```
 
-Visit `http://localhost:5173` to view the application.
+Visit [http://localhost:5173](http://localhost:5173) to view the application.
 
-## Deployment
+## 🚀 Deployment
 
-The application is deployed on Google Cloud Platform. Follow the deployment documentation for detailed instructions.
+Detailed deployment instructions can be found in our [Deployment Guide](./docs/deployment.md).
 
-## License
+## 📄 License
 
 MIT
