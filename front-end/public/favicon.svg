@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <style>
+      .primary { fill: #2563eb; }
+      .secondary { fill: #1d4ed8; }
+    </style>
+  </defs>
+  <!-- Book base -->
+  <path class="primary" d="M6 4v24h20V4H6zm18 22H8V6h16v20z"/>
+  <!-- Book pages -->
+  <path class="secondary" d="M10 8h12v2H10zM10 12h12v2H10zM10 16h8v2h-8z"/>
+  <!-- Pen -->
+  <path class="primary" d="M22 14l2-2 2 2-2 2z"/>
+  <path class="secondary" d="M21 15l-3 3v2h2l3-3z"/>
+</svg>
