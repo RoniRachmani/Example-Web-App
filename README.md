@@ -4,30 +4,30 @@ A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, 
 
 ## 🛠️ Tech Stack
 
-<details>
+
 <summary><strong>Frontend</strong></summary>
 
 - ⚛️ React with Vite as the build tool
 - 🔐 Firebase for authentication
 - 📡 Axios for API calls
 - 🎨 CSS for styling
-</details>
 
-<details>
+
+
 <summary><strong>Backend</strong></summary>
 
 - 📦 Node.js with Express.js framework
 - 🗄️ MongoDB Atlas for database
 - 🔄 RESTful API
-</details>
 
-<details>
+
+
 <summary><strong>Development & Deployment</strong></summary>
 
 - 💻 VS Code as the IDE
 - 📚 GitHub for version control
 - ☁️ Google Cloud Platform (GCP) for hosting
-</details>
+
 
 ## ✨ Features
 
