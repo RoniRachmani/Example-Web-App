@@ -2,8 +2,7 @@
 
 A full-stack React app using Node.js and Express backend, MongoDB database, Firebase authentication, deployed in Google Cloud
 
-This repository is based on the LinkedIn Learning course "React: Creating and Hosting a Full-Stack Site". 
-The entire course is available at https://www.linkedin.com/learning/react-creating-and-hosting-a-full-stack-site-24928483.
+This repository is based on the LinkedIn Learning course [React: Creating and Hosting a Full-Stack Site](https://www.linkedin.com/learning/react-creating-and-hosting-a-full-stack-site-24928483).
 
 ## Tech Stack
 
