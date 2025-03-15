@@ -26,3 +26,7 @@ A full-stack React app using Node.js and Express backend, MongoDB database, Fire
 - Public pages: Home, About, Articles listing, individual Article detail
 - User authentication: Sign In, Create Account, Sign Out
 - Protected functionality: Adding comments & upvoting (available to logged-in users)
+
+## Screenshot
+
+![Screenshot 2025-03-15 at 15 12 19](https://github.com/user-attachments/assets/57297544-746d-4b7a-bab2-a9c32df6896f)
