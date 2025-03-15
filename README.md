@@ -1,4 +1,4 @@
-# Blogify | Read. Write. React.
+# Blogify | Read. Write. <ins>React</ins>.
 
 A full-stack React app using Node.js and Express backend, MongoDB database, Firebase authentication, deployed in Google Cloud
 
