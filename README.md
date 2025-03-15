@@ -1,6 +1,6 @@
 # Blogify | Read. Write. React.
 
-A full-stack JavaScript/Node.js web app using the MERN stack (MongoDB, Express, React, Node.js) with Firebase authentication.
+A full-stack React app using Node.js and Express backend, MongoDB database, Firebase authentication, deployed in Google Cloud
 
 ## Tech Stack
 
