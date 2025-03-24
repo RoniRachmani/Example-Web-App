@@ -32,4 +32,4 @@ A full-stack React app using Node.js and Express backend, MongoDB database, Fire
 ![Screenshot 2025-03-15 at 15 12 19](https://github.com/user-attachments/assets/57297544-746d-4b7a-bab2-a9c32df6896f)
 
 ## Thanks
-Based on the LinkedIn Learning course [React: Creating and Hosting a Full-Stack Site](https://www.linkedin.com/learning-login/share?forceAccount=false&redirect=https%3A%2F%2Fwww.linkedin.com%2Flearning%2Freact-creating-and-hosting-a-full-stack-site-24928483%3Ftrk%3Dshare_ent_url%26shareId%3DMQUcG3bpQ%252BeSO3CBqaxnLw%253D%253D).
+LinkedIn Learning course [React: Creating and Hosting a Full-Stack Site](https://www.linkedin.com/learning-login/share?forceAccount=false&redirect=https%3A%2F%2Fwww.linkedin.com%2Flearning%2Freact-creating-and-hosting-a-full-stack-site-24928483%3Ftrk%3Dshare_ent_url%26shareId%3DMQUcG3bpQ%252BeSO3CBqaxnLw%253D%253D).
