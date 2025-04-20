@@ -1,8 +1,15 @@
+# OS generated files
 .DS_Store
+
+# Dependencies
 node_modules
 .tmp
-terminal.html
 npm-debug.log
+
+# Development files
+terminal.html
+
+# Backend specific
 back-end/credentials.json
 back-end/dist
 back-end/.env
