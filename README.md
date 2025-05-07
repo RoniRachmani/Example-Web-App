@@ -18,7 +18,7 @@ A full-stack React app using Node.js and Express backend, MongoDB database, Fire
 **Development & Deployment**
 - VS Code as the IDE
 - GitHub for version control
-- Google Cloud Platform (GCP) for hosting
+- Google Cloud Platform (GCP) App Engine for hosting 
 
 ## Features
 
