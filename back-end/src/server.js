@@ -1,6 +1,7 @@
 import express from 'express';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import admin from 'firebase-admin';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -14,8 +15,8 @@ const credentials = JSON.parse(
   fs.readFileSync('./credentials.json')
 );
 
-admin.initializeApp({
-  credential: admin.credential.cert(credentials)
+initializeApp({
+  credential: cert(credentials)
 });
 
 const app = express();
@@ -56,7 +57,7 @@ app.use(async function (req, res, next) {
   const { authtoken } = req.headers;
 
   if (authtoken) {
-    const user = await admin.auth().verifyIdToken(authtoken);
+    const user = await getAuth().verifyIdToken(authtoken);
     req.user = user;
     next();
   } else {
