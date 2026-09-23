@@ -9,6 +9,12 @@ updates:
       - "/back-end"
     schedule:
       interval: "weekly"
+    # Wait before proposing a new release. Minor/patch PRs auto-merge without review, so this
+    # is the buffer that lets hijacked or broken releases get pulled before they reach main.
+    # Security updates are never delayed by cooldown.
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
     # eslint-plugin-react (latest 7.37.5) only supports eslint <= 9, so eslint 10 can't install.
     # Remove this once eslint-plugin-react supports eslint 10.
     ignore:
