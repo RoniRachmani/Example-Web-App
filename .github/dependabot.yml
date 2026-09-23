@@ -16,7 +16,8 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@eslint/js"
         update-types: ["version-update:semver-major"]
-    # Batch minor/patch bumps into one weekly PR; majors still get their own PR
+    # Batch minor/patch bumps into one weekly PR; majors still get their own PR.
+    # Minor/patch PRs auto-merge once CI passes (workflows/dependabot-auto-merge.yml).
     groups:
       minor-and-patch:
         update-types:

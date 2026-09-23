@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  front-end:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front-end
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22 # matches the App Engine runtime in back-end/app.yaml
+          cache: npm
+          cache-dependency-path: front-end/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  back-end:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: back-end
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: back-end/package-lock.json
+      - run: npm ci
+      # credentials.json is a gitignored secret, so server.js is expected to stop when it reads it.
+      # Getting that far means every import in server.js resolved and dotenv.config() ran;
+      # a missing package or export fails earlier with a different error.
+      - name: Check server.js loads its dependencies
+        run: |
+          if timeout 60 node src/server.js 2> err.log; then echo "server.js started unexpectedly"; exit 1; fi
+          grep -q "open './credentials.json'" err.log || { cat err.log; exit 1; }
