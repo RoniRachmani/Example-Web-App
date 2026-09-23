@@ -12,7 +12,7 @@ export default function ArticlePage() {
   const [upvotes, setUpvotes] = useState(initialUpvotes);
   const [comments, setComments] = useState(initialComments);
 
-  const { isLoading, user } = useUser();
+  const { user } = useUser();
 
   const article = articles.find(a => a.name === name);
 
