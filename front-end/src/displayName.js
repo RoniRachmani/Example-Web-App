@@ -1,6 +1,6 @@
 import { updateProfile } from 'firebase/auth';
 
-// The server also cuts names to this length (MAX_DISPLAY_NAME_LENGTH in back-end/src/server.js).
+// The server also cuts names to this length (MAX_DISPLAY_NAME_LENGTH in back-end/src/app.js).
 export const MAX_DISPLAY_NAME_LENGTH = 50;
 
 export async function saveDisplayName(user, displayName) {
