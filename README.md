@@ -4,6 +4,8 @@
 
 A full-stack blog built with React and Vite on the front end, Node.js and Express on the back end, MongoDB Atlas for storage and Firebase Authentication for sign-in. It is deployed as a single service on Google Cloud App Engine.
 
+**Live site:** https://app.ronirachmani.com
+
 ![Screenshot of the Blogify app](https://github.com/user-attachments/assets/57297544-746d-4b7a-bab2-a9c32df6896f)
 
 ## Features
