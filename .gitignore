@@ -20,6 +20,10 @@ npm-debug.log
 # Development files
 terminal.html
 
+# Front-end test output (Playwright)
+front-end/playwright-report/
+front-end/test-results/
+
 # Backend specific
 back-end/credentials.json
 back-end/dist

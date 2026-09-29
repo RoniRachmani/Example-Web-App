@@ -13,9 +13,11 @@ Follow [Getting started](README.md#getting-started) in the README. You'll need N
 3. Before pushing, run the same checks CI does:
    ```bash
    cd back-end && npm test
-   cd ../front-end && npm run lint && npm run build
+   cd ../front-end && npm run lint && npm run build && npm run test:e2e
    ```
    The back-end tests use in-memory fakes, so they run without MongoDB or the secret files. Add or update tests in `back-end/test/` when you change the API.
+
+   The browser tests in `front-end/e2e/` fake Firebase and the API, so they don't need a back end or secrets either. Run `npx playwright install chromium` once before the first run. Add or update them when you change sign-up, the profile page or the nav bar.
 4. Open a pull request and fill in the template. CI must pass before merging.
 
 ## Guidelines
