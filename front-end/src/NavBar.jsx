@@ -24,7 +24,7 @@ export default function NavBar() {
           <>
           {user && (
             <>
-            <li style={{ color: 'white' }}>
+            <li className='nav-user' style={{ color: 'white' }}>
               Logged in as {user.displayName || user.email}
             </li>
             <li>
