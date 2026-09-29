@@ -89,7 +89,9 @@ export function createApp({ db, verifyIdToken }) {
     }
 
     const postedBy = getDisplayName(req.user) || req.user.email;
-    const newComment = { postedBy, text: trimmedText };
+    // Display names aren't unique and anyone can pick any name, so keep the author's
+    // uid too: it's what tells two commenters with the same name apart.
+    const newComment = { uid: req.user.uid, postedBy, text: trimmedText };
 
     const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
       $push: { comments: newComment }

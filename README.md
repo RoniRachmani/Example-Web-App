@@ -129,7 +129,7 @@ All routes are under `/api`. Write routes need a Firebase ID token in an `authto
 | ------ | ---- | ---- | ----------- |
 | `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |
 | `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
-| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name (trimmed and cut to 50 characters), or their email if they have no name |
+| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name (trimmed and cut to 50 characters), or their email if they have no name. Each comment also stores the author's `uid`, since display names aren't unique |
 
 Any other non-`/api` path returns the front end's `index.html`, so client-side routes work on refresh.
 

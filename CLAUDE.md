@@ -9,7 +9,7 @@ Blogify is a small full-stack blog. There are two independent npm packages with 
 - `front-end/`: React 19 SPA built with Vite. Routes are defined in `src/App.jsx` with React Router 7 data loaders (`ArticlePage` exports a `loader`). Article text is static in `src/article-content.js`. Firebase Auth (email/password) runs client-side, and the Firebase client config is in `src/main.jsx`.
 - `back-end/`: Express 5. `src/app.js` builds the app with `createApp({ db, verifyIdToken })`: it serves `../dist` (the copied front-end build) and a small `/api` backed by MongoDB. Write routes sit behind a middleware that verifies the Firebase ID token in the `authtoken` header and take the user from `req.user`, never from the request body. `src/server.js` is only startup: it reads `credentials.json`, initialises firebase-admin, connects to MongoDB (`MONGODB_URI`, or the Atlas URI built from `MONGODB_USERNAME`/`MONGODB_PASSWORD`) and listens.
 
-MongoDB only stores `{ name, upvotes, upvoteIds, comments }` per article, keyed by the article `name` from `article-content.js`.
+MongoDB only stores `{ name, upvotes, upvoteIds, comments }` per article, with each comment as `{ uid, postedBy, text }`. Articles are keyed by the article `name` from `article-content.js`.
 
 ## Commands
 

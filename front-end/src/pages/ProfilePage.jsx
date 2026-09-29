@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useUser from '../useUser';
 import { MAX_DISPLAY_NAME_LENGTH, saveDisplayName } from '../displayName';
 
@@ -19,12 +19,16 @@ export default function ProfilePage() {
     );
   }
 
-  return <ProfileForm user={user} />;
+  // Keyed by uid so the form resets if a different user signs in (e.g. in another tab)
+  // instead of saving the previous user's name to the new account.
+  return <ProfileForm key={user.uid} user={user} />;
 }
 
 function ProfileForm({ user }) {
+  const location = useLocation();
   const [displayName, setDisplayName] = useState(user.displayName || '');
-  const [message, setMessage] = useState('');
+  // Set when sign-up created the account but couldn't save the name
+  const [message, setMessage] = useState(location.state?.message || '');
   const [isSaving, setIsSaving] = useState(false);
 
   async function save() {
