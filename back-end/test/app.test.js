@@ -26,21 +26,27 @@ describe('articles API', () => {
   let server;
   let baseUrl;
 
+  async function startServer(options) {
+    server = createApp({ db, verifyIdToken, ...options }).listen(0);
+    await once(server, 'listening');
+    baseUrl = `http://127.0.0.1:${server.address().port}`;
+  }
+
+  function stopServer() {
+    server.closeAllConnections();
+    server.close();
+  }
+
   beforeEach(async () => {
     // No upvoteIds field, like the articles already in the database.
     db = createFakeDb([{ name: 'learn-react', upvotes: 0, comments: [] }]);
-    server = createApp({ db, verifyIdToken }).listen(0);
-    await once(server, 'listening');
-    baseUrl = `http://127.0.0.1:${server.address().port}`;
+    await startServer();
   });
 
-  afterEach(() => {
-    server.closeAllConnections();
-    server.close();
-  });
+  afterEach(stopServer);
 
-  function request(method, path, { token, body } = {}) {
-    const headers = { 'content-type': 'application/json' };
+  function request(method, path, { token, body, headers: extraHeaders } = {}) {
+    const headers = { 'content-type': 'application/json', ...extraHeaders };
     if (token) headers.authtoken = token;
     return fetch(baseUrl + path, { method, headers, body: body && JSON.stringify(body) });
   }
@@ -185,6 +191,45 @@ describe('articles API', () => {
     it('returns 404 for an unknown article', async () => {
       const res = await request('POST', '/api/articles/nope/comments', { token: 'alice-token', body: { text: 'hi' } });
       assert.equal(res.status, 404);
+    });
+  });
+
+  describe('rate limiting', () => {
+    beforeEach(async () => {
+      stopServer();
+      await startServer({ rateLimits: { windowMs: 60_000, requests: 5, writes: 2 } });
+    });
+
+    it('returns 429 once a client has made too many requests', async () => {
+      for (let i = 0; i < 5; i++) {
+        assert.equal((await request('GET', '/api/articles/learn-react')).status, 200);
+      }
+      assert.equal((await request('GET', '/api/articles/learn-react')).status, 429);
+    });
+
+    it('counts clients by the App Engine client IP header', async () => {
+      for (let i = 0; i < 5; i++) {
+        await request('GET', '/api/articles/learn-react', { headers: { 'x-appengine-user-ip': '203.0.113.1' } });
+      }
+      const blocked = await request('GET', '/api/articles/learn-react', { headers: { 'x-appengine-user-ip': '203.0.113.1' } });
+      const other = await request('GET', '/api/articles/learn-react', { headers: { 'x-appengine-user-ip': '203.0.113.2' } });
+      assert.equal(blocked.status, 429);
+      assert.equal(other.status, 200);
+    });
+
+    it('limits upvotes and comments per user', async () => {
+      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'one' } });
+      await request('POST', '/api/articles/learn-react/upvote', { token: 'alice-token' });
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'three' } });
+      assert.equal(res.status, 429);
+      assert.deepEqual(db.docs[0].comments.map(c => c.text), ['one']);
+    });
+
+    it("doesn't count one user's writes against another", async () => {
+      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'one' } });
+      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'two' } });
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'bob-token', body: { text: 'hi' } });
+      assert.equal(res.status, 200);
     });
   });
 });
