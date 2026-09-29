@@ -25,12 +25,23 @@ export default function CreateAccountPage() {
       return;
     }
 
+    let user;
     try {
-      const { user } = await createUserWithEmailAndPassword(getAuth(), email, password);
-      await saveDisplayName(user, trimmedName);
-      navigate('/articles');
+      ({ user } = await createUserWithEmailAndPassword(getAuth(), email, password));
     } catch (e) {
       setError(e.message);
+      return;
+    }
+
+    try {
+      await saveDisplayName(user, trimmedName);
+      navigate('/articles');
+    } catch {
+      // The account exists and the user is signed in, so retrying here would fail
+      // with "email already in use". Let them set the name on the profile page.
+      navigate('/profile', {
+        state: { message: "Your account was created, but your display name couldn't be saved. Please set it here." },
+      });
     }
   }
 

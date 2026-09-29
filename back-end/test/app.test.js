@@ -48,6 +48,7 @@ const users = {
   'long-name-token': { uid: 'dave', email: 'dave@example.com', name: 'D'.repeat(80) },
   'emoji-name-token': { uid: 'erin', email: 'erin@example.com', name: 'E'.repeat(49) + '😀😀' },
   'blank-name-token': { uid: 'frank', email: 'frank@example.com', name: '   ' },
+  'impostor-token': { uid: 'mallory', email: 'mallory@example.com', name: 'alice@example.com' },
 };
 
 async function verifyIdToken(token) {
@@ -146,7 +147,16 @@ describe('articles API', () => {
         body: { postedBy: 'bob@example.com', text: '  Nice article  ' },
       });
       assert.equal(res.status, 200);
-      assert.deepEqual((await res.json()).comments, [{ postedBy: 'alice@example.com', text: 'Nice article' }]);
+      assert.deepEqual((await res.json()).comments, [{ uid: 'alice', postedBy: 'alice@example.com', text: 'Nice article' }]);
+    });
+
+    it("keeps the author's uid, so a copied display name can be told apart", async () => {
+      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'real' } });
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'impostor-token', body: { text: 'fake' } });
+      const [real, fake] = (await res.json()).comments;
+      assert.equal(real.postedBy, fake.postedBy);
+      assert.equal(real.uid, 'alice');
+      assert.equal(fake.uid, 'mallory');
     });
 
     it('uses the display name from the token, trimmed', async () => {
