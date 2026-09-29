@@ -5,7 +5,9 @@ export const MAX_DISPLAY_NAME_LENGTH = 50;
 
 export async function saveDisplayName(user, displayName) {
   await updateProfile(user, { displayName });
-  // Existing ID tokens keep the old name claim until they expire, so refresh
-  // now for the server to see the new name on the next comment.
+  // updateProfile keeps the new ID token if the server returns one. Refresh
+  // anyway so the server sees the new name claim on the next comment, and
+  // useUser re-renders, even if it doesn't: otherwise the old token (with no
+  // name, or the old one) stays in use for up to an hour.
   await user.getIdToken(true);
 }
