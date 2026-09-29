@@ -1,10 +1,21 @@
 # OS generated files
 .DS_Store
+Thumbs.db
 
 # Dependencies
 node_modules
 .tmp
 npm-debug.log
+
+# Environment files (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
 
 # Development files
 terminal.html
@@ -12,6 +23,6 @@ terminal.html
 # Backend specific
 back-end/credentials.json
 back-end/dist
-back-end/.env
 back-end/prod-env.yaml
 back-end/src/testConnection.js
+back-end/err.log

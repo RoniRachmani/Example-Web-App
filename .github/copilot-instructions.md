@@ -1,4 +1,4 @@
-This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/Express back end that stores articles in MongoDB Atlas and uses Firebase Authentication. It is deployed to Google Cloud App Engine. Please follow these guidelines when contributing:
+This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/Express back end that stores articles in MongoDB Atlas and uses Firebase Authentication. It is deployed to Google Cloud App Engine. See `CLAUDE.md` for the full project guide. Please follow these guidelines when contributing:
 
 ## Code Standards
 
@@ -28,3 +28,6 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 3. Return the right status codes: 401 for missing or invalid tokens, 404 for unknown articles, 400 for invalid input
 4. Add or update tests in `back-end/test/` for API changes, using the fakes passed to `createApp` rather than a real database
 5. Keep dependency changes minimal; Dependabot manages version bumps
+6. Target Node 22 (`.nvmrc`), matching App Engine and CI
+7. Keep ESLint on v9, since `eslint-plugin-react` does not support v10, and keep the `overrides` in each `package.json`, which pin patched transitive dependencies
+8. Update `README.md` when you change setup steps, environment variables or API routes
