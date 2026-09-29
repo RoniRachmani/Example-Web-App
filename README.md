@@ -37,7 +37,7 @@ Protected routes need a Firebase ID token in the `authtoken` header. A missing, 
 | POST | `/api/articles/:name/upvote` | Yes | – | `200` updated article, `401` bad/missing token, `403` already upvoted, `404` unknown article |
 | POST | `/api/articles/:name/comments` | Yes | `{ "text": string }` (1–1000 chars, trimmed) | `200` updated article, `400` invalid `text`, `401` bad/missing token, `404` unknown article |
 
-A comment's `postedBy` is taken from the verified token (the user's display name, or their email if no name is set). The server ignores any `postedBy` sent in the request body.
+A comment's `postedBy` is taken from the verified token (the user's display name, trimmed and cut to 50 characters, or their email if no name is set). The server ignores any `postedBy` sent in the request body.
 
 ## Screenshot
 
