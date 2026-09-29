@@ -29,3 +29,16 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    # Workflows pin actions to major tags (e.g. @v7), so these PRs are almost always majors
+    # and wait for review; see workflows/dependabot-auto-merge.yml.
+    groups:
+      github-actions:
+        patterns:
+          - "*"

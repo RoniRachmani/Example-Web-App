@@ -1,7 +1,7 @@
 {
   "name": "back-end",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +11,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Express API for Blogify: serves the built front end and the articles API backed by MongoDB and Firebase Auth",
   "dependencies": {
     "dotenv": "^18.0.1",
     "express": "^5.2.1",
