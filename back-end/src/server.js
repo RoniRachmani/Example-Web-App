@@ -50,48 +50,61 @@ app.get(/^(?!\/api).+/, (req, res) => {
 app.get('/api/articles/:name', async (req, res) => {
   const { name } = req.params;
   const article = await db.collection('articles').findOne({ name });
-  res.json(article);
+
+  if (article) {
+    res.json(article);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.use(async function (req, res, next) {
   const { authtoken } = req.headers;
 
-  if (authtoken) {
-    const user = await getAuth().verifyIdToken(authtoken);
-    req.user = user;
-    next();
-  } else {
-    res.sendStatus(400);
+  if (!authtoken) {
+    return res.sendStatus(401);
   }
+
+  try {
+    req.user = await getAuth().verifyIdToken(authtoken);
+  } catch {
+    return res.sendStatus(401);
+  }
+
+  next();
 });
 
 app.post('/api/articles/:name/upvote', async (req, res) => {
   const { name } = req.params;
   const { uid } = req.user;
 
-  const article = await db.collection('articles').findOne({ name });
+  // Checking upvoteIds in the filter makes the check and the update one atomic step,
+  // so two requests at once can't both count.
+  const updatedArticle = await db.collection('articles').findOneAndUpdate({ name, upvoteIds: { $ne: uid } }, {
+    $inc: { upvotes: 1 },
+    $push: { upvoteIds: uid },
+  }, {
+    returnDocument: "after",
+  });
 
-  const upvoteIds = article.upvoteIds || [];
-  const canUpvote = uid && !upvoteIds.includes(uid);
-
-  if (canUpvote) {
-    const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
-      $inc: { upvotes: 1 },
-      $push: { upvoteIds: uid },
-    }, {
-      returnDocument: "after",
-    });
-
+  if (updatedArticle) {
     res.json(updatedArticle);
-  } else {
+  } else if (await db.collection('articles').findOne({ name })) {
     res.sendStatus(403);
+  } else {
+    res.sendStatus(404);
   }
 });
 
 app.post('/api/articles/:name/comments', async (req, res) => {
   const { name } = req.params;
-  const { postedBy, text } = req.body;
-  const newComment = { postedBy, text };
+  const { text } = req.body ?? {};
+
+  if (typeof text !== 'string' || !text.trim()) {
+    return res.sendStatus(400);
+  }
+
+  const newComment = { postedBy: req.user.email, text: text.trim() };
 
   const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
     $push: { comments: newComment }
@@ -99,7 +112,11 @@ app.post('/api/articles/:name/comments', async (req, res) => {
     returnDocument: 'after',
   });
 
-  res.json(updatedArticle);
+  if (updatedArticle) {
+    res.json(updatedArticle);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 const PORT = process.env.PORT || 8000;
