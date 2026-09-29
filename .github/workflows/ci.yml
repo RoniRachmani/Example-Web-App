@@ -25,13 +25,42 @@ jobs:
         with:
           node-version-file: .nvmrc # keep in sync with the App Engine runtime in back-end/app.yaml
           cache: npm
-          cache-dependency-path: front-end/package-lock.json
+          cache-dependency-path: |
+            front-end/package-lock.json
+            back-end/package-lock.json
       - run: npm ci
+      # The browser tests run the real back end (createApp) for /api
+      - name: Install back-end dependencies for the browser tests
+        run: npm ci
+        working-directory: back-end
       - run: npm run lint
+      # playwright.config.js skips its own build when CI is set and serves this dist
       - run: npm run build
+      - name: Get the Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache the Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      # Headless tests only need the headless shell, not the full browser
       - name: Install Chromium for the browser tests
-        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Install Chromium's system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       - run: npm run test:e2e
+      - name: Upload traces of failed browser tests
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: front-end/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
 
   back-end:
     runs-on: ubuntu-latest

@@ -1,8 +1,12 @@
+import { once } from 'node:events';
 import { test as base, expect } from '@playwright/test';
+import { createApp } from '../../back-end/src/app.js';
+import { createFakeDb } from '../../back-end/test/fake-db.js';
 
-// The app talks to Firebase Auth's REST API and to our /api routes. These fakes
-// answer both inside the browser, so the tests need no Firebase project, back
-// end or network access.
+// The app talks to Firebase Auth's REST API and to our /api routes. Firebase is
+// faked inside the browser. /api requests go to the real back end (createApp from
+// back-end/src/app.js) with an in-memory database, so the tests need no Firebase
+// project, MongoDB or network access, and can't drift from the server's rules.
 
 const b64url = value => Buffer.from(JSON.stringify(value)).toString('base64url');
 const decodeToken = token => JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
@@ -55,7 +59,13 @@ function createFakeFirebase() {
 
   const tokens = account => ({ idToken: idToken(account), refreshToken: `refresh-${account.uid}`, expiresIn: '3600' });
   const byUid = uid => [...accounts.values()].find(a => a.uid === uid);
-  const byIdToken = token => byUid(decodeToken(token).user_id);
+  const byIdToken = token => {
+    try {
+      return byUid(decodeToken(token).user_id);
+    } catch {
+      return undefined;
+    }
+  };
 
   const userInfo = account => ({
     localId: account.uid,
@@ -86,11 +96,15 @@ function createFakeFirebase() {
         if (!account || account.password !== body.password) return error('INVALID_LOGIN_CREDENTIALS');
         return { status: 200, body: { kind: 'identitytoolkit#VerifyPasswordResponse', localId: account.uid, email: account.email, displayName: account.displayName, registered: true, ...tokens(account) } };
       }
-      case 'accounts:lookup':
-        return { status: 200, body: { kind: 'identitytoolkit#GetAccountInfoResponse', users: [userInfo(byIdToken(body.idToken))] } };
+      case 'accounts:lookup': {
+        const account = byIdToken(body.idToken);
+        if (!account) return error('INVALID_ID_TOKEN');
+        return { status: 200, body: { kind: 'identitytoolkit#GetAccountInfoResponse', users: [userInfo(account)] } };
+      }
       case 'accounts:update': {
         if (firebase.failProfileUpdate) return error('INTERNAL_ERROR');
         const account = byIdToken(body.idToken);
+        if (!account) return error('INVALID_ID_TOKEN');
         if ('displayName' in body) account.displayName = body.displayName;
         return { status: 200, body: {
           kind: 'identitytoolkit#SetAccountInfoResponse',
@@ -99,7 +113,8 @@ function createFakeFirebase() {
         } };
       }
       case 'token': {
-        const account = byUid(body.refresh_token.replace(/^refresh-/, ''));
+        const account = byUid(String(body.refresh_token).replace(/^refresh-/, ''));
+        if (!account) return error('INVALID_REFRESH_TOKEN');
         const { idToken: token, refreshToken, expiresIn } = tokens(account);
         return { status: 200, body: { access_token: token, id_token: token, refresh_token: refreshToken, expires_in: expiresIn, token_type: 'Bearer', user_id: account.uid, project_id: 'fake-project' } };
       }
@@ -111,37 +126,35 @@ function createFakeFirebase() {
   return firebase;
 }
 
-// Stands in for back-end/src/app.js. Like the real server, it takes the comment
-// author from the verified token's name claim, falling back to the email.
-function createFakeApi() {
-  const articles = new Map([['learn-react', { name: 'learn-react', upvotes: 0, upvoteIds: [], comments: [] }]]);
+// Checks tokens the way firebase-admin's verifyIdToken does for the real server,
+// minus the signature: the fake tokens are unsigned. A malformed token throws,
+// which the real middleware turns into a 401.
+async function verifyIdToken(token) {
+  const claims = decodeToken(token);
+  if (!claims.user_id) throw new Error('token has no user_id');
+  return { ...claims, uid: claims.user_id };
+}
 
-  const api = {
-    // Each comment posted, with the claims of the token it was sent with.
-    posted: [],
+// Starts the real back end on a random port with a fresh in-memory database.
+async function startApi() {
+  const db = createFakeDb([{ name: 'learn-react', upvotes: 0, upvoteIds: [], comments: [] }]);
+  const server = createApp({ db, verifyIdToken }).listen(0, '127.0.0.1');
+  await once(server, 'listening');
 
-    handle(method, path, headers, body) {
-      const match = path.match(/^\/api\/articles\/([^/]+)(\/comments|\/upvote)?$/);
-      const article = match && articles.get(match[1]);
-      if (!article) return { status: 404 };
-      if (method === 'GET') return { status: 200, body: article };
-
-      if (!headers.authtoken) return { status: 401 };
-      const claims = decodeToken(headers.authtoken);
-
-      if (match[2] === '/comments') {
-        const comment = { postedBy: claims.name || claims.email, text: body.text.trim() };
-        article.comments.push(comment);
-        api.posted.push({ ...comment, claims });
-      } else {
-        article.upvotes += 1;
-        article.upvoteIds.push(claims.user_id);
-      }
-      return { status: 200, body: article };
+  return {
+    db,
+    url: `http://127.0.0.1:${server.address().port}`,
+    close() {
+      server.closeAllConnections();
+      server.close();
     },
   };
+}
 
-  return api;
+// Fulfills a route with a clear error instead of leaving the request hanging
+// until the test times out.
+async function fulfillWithError(route, where, error) {
+  await route.fulfill({ status: 500, headers: CORS, json: { error: { code: 500, message: `${where}: ${error.message}` } } });
 }
 
 function parseBody(request) {
@@ -170,23 +183,44 @@ export const test = base.extend({
       if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
 
       const endpoint = new URL(request.url()).pathname.split('/').pop();
-      const { status, body } = firebase.handle(endpoint, parseBody(request));
-      await route.fulfill({ status, headers: CORS, json: body });
+      try {
+        const { status, body } = firebase.handle(endpoint, parseBody(request));
+        await route.fulfill({ status, headers: CORS, json: body });
+      } catch (error) {
+        await fulfillWithError(route, `fake Firebase ${endpoint}`, error);
+      }
     });
 
     await use(firebase);
   }, { auto: true }],
 
   api: [async ({ context }, use) => {
-    const api = createFakeApi();
+    const server = await startApi();
+    const api = {
+      db: server.db,
+      // Each comment the server accepted, with the claims of the token it was sent with.
+      posted: [],
+    };
 
     await context.route('**/api/**', async route => {
       const request = route.request();
-      const { status, body } = api.handle(request.method(), new URL(request.url()).pathname, request.headers(), parseBody(request));
-      await route.fulfill(body === undefined ? { status } : { status, json: body });
+      const { pathname, search } = new URL(request.url());
+      try {
+        const response = await route.fetch({ url: server.url + pathname + search });
+
+        if (request.method() === 'POST' && pathname.endsWith('/comments') && response.ok()) {
+          const comment = (await response.json()).comments.at(-1);
+          api.posted.push({ ...comment, claims: decodeToken(request.headers().authtoken) });
+        }
+
+        await route.fulfill({ response });
+      } catch (error) {
+        await fulfillWithError(route, `back end ${request.method()} ${pathname}`, error);
+      }
     });
 
     await use(api);
+    server.close();
   }, { auto: true }],
 
   // Fails the test if the page throws an uncaught error.
