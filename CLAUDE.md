@@ -30,7 +30,7 @@ npm test         # node:test API tests with in-memory fakes; no DB or secrets ne
 
 CI (`.github/workflows/ci.yml`) runs front-end `lint`, `build` and `test:e2e`, back-end `npm test`, and checks that `back-end/src/server.js` gets as far as reading `credentials.json`, which proves its imports resolve. Before you push, run the same checks. API changes need tests in `back-end/test/`, using the fakes passed to `createApp` rather than a real database. Return `401` for missing or invalid tokens, `404` for unknown articles and `400` for invalid input.
 
-Browser tests live in `front-end/e2e/`. `e2e/fixtures.js` fakes Firebase Auth's REST API and the `/api` routes inside the browser and stubs every other outside request, so the tests need no Firebase project, back end or network. Add or update tests there when you change sign-up, the profile page or the nav bar. Outside Claude Code on the web, run `npx playwright install chromium` once before `npm run test:e2e`.
+Browser tests live in `front-end/e2e/`. `e2e/fixtures.js` fakes Firebase Auth's REST API and the `/api` routes inside the browser and stubs every other outside request, so the tests need no Firebase project, back end or network. Add or update tests there when you change sign-up, the profile page, the comment form or the nav bar. Outside Claude Code on the web, run `npx playwright install chromium` once before `npm run test:e2e`.
 
 In Claude Code on the web, the SessionStart hook (`.claude/hooks/session-start.sh`) runs `npm ci` in both packages, so these checks work straight away. `playwright.config.js` uses the container's preinstalled Chromium there, since the sandbox can't download one.
 
