@@ -8,6 +8,7 @@
 
 ## How I tested it
 
+- [ ] `npm test` passes in `back-end/`
 - [ ] `npm run lint` and `npm run build` pass in `front-end/`
 - [ ] Ran the app locally and checked the affected pages or routes
 - [ ] Updated the README if setup, environment variables or API routes changed

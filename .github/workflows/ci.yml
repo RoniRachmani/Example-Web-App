@@ -43,6 +43,7 @@ jobs:
           cache: npm
           cache-dependency-path: back-end/package-lock.json
       - run: npm ci
+      - run: npm test
       # credentials.json is a gitignored secret, so server.js is expected to stop when it reads it.
       # Getting that far means every import in server.js resolved and dotenv.config() ran;
       # a missing package or export fails earlier with a different error.

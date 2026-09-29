@@ -1,26 +1,33 @@
-This repository is Blogify, a small full-stack blog. The front end is React 19 and Vite (`front-end/`). The back end is an Express 5 API (`back-end/src/server.js`) backed by MongoDB Atlas, with Firebase Authentication. It deploys to Google Cloud App Engine. See `CLAUDE.md` for the full project guide.
+This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/Express back end that stores articles in MongoDB Atlas and uses Firebase Authentication. It is deployed to Google Cloud App Engine. See `CLAUDE.md` for the full project guide. Please follow these guidelines when contributing:
 
-## Development flow
+## Code Standards
 
-- Install: `npm install` in both `front-end/` and `back-end/` (they are separate packages)
-- Run: `npm run dev` in `back-end/` (port 8000) and in `front-end/` (port 5173, proxies `/api`)
-- Lint: `npm run lint` in `front-end/`
-- Build: `npm run build` in `front-end/`
-- There is no test suite yet. CI runs lint, build and a back-end import check.
+### Required Before Each Commit
+- Back end: run `npm test` in `back-end/`
+- Front end: run `npm run lint` and `npm run build` in `front-end/`
+- CI runs the same checks on every pull request (`.github/workflows/ci.yml`)
 
-## Repository structure
+### Development Flow
+- Install: `npm install` in both `back-end/` and `front-end/`
+- Run locally: `npm run dev` in `back-end/` (API on port 8000) and in `front-end/` (Vite on port 5173, proxying `/api` to the back end)
+- The back end needs two gitignored files, `back-end/credentials.json` (Firebase service account key) and `back-end/.env` (`MONGODB_USERNAME` and `MONGODB_PASSWORD`, or `MONGODB_URI`). Never commit them or `back-end/prod-env.yaml`.
 
-- `front-end/src/pages/`: route components. Routes are in `front-end/src/App.jsx`.
-- `front-end/src/article-content.js`: static article text
-- `back-end/src/server.js`: the whole API and static file server
+## Repository Structure
+- `back-end/src/app.js`: Express routes, built by `createApp({ db, verifyIdToken })`
+- `back-end/src/server.js`: startup code that reads the secrets, connects to MongoDB and listens
+- `back-end/test/`: API tests using `node:test`, with an in-memory fake database and token checker
 - `back-end/app.yaml`: App Engine config
-- `.github/workflows/`: CI, Dependabot auto-merge and Claude workflows
+- `front-end/src/pages/`: one component per route; `ArticlePage.jsx` also exports the route's `loader`
+- `front-end/src/App.jsx`: React Router routes
+- `front-end/src/article-content.js`: article titles and text; MongoDB holds only upvotes and comments
+- `.claude/commands/`: Claude Code commands, including `/deploy`
 
-## Key guidelines
-
-1. Use ES modules, 2-space indentation, function components and `async/await`.
-2. Target Node 22 to match App Engine and CI.
-3. Never commit `back-end/credentials.json`, `back-end/.env` or `back-end/prod-env.yaml`.
-4. Keep ESLint on v9. `eslint-plugin-react` does not support v10.
-5. Keep the `overrides` in each `package.json`. They pin patched transitive dependencies.
-6. Update `README.md` when you change setup steps, environment variables or API routes.
+## Key Guidelines
+1. Use ES modules and match the existing style: function components and hooks in the front end, async/await in the back end
+2. Routes under `/api` that change data must stay behind the Firebase auth middleware in `app.js` and take the user from `req.user`, never from the request body
+3. Return the right status codes: 401 for missing or invalid tokens, 404 for unknown articles, 400 for invalid input
+4. Add or update tests in `back-end/test/` for API changes, using the fakes passed to `createApp` rather than a real database
+5. Keep dependency changes minimal; Dependabot manages version bumps
+6. Target Node 22 (`.nvmrc`), matching App Engine and CI
+7. Keep ESLint on v9, since `eslint-plugin-react` does not support v10, and keep the `overrides` in each `package.json`, which pin patched transitive dependencies
+8. Update `README.md` when you change setup steps, environment variables or API routes

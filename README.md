@@ -13,7 +13,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 - Dark or light theme (follows the OS setting) with a top navigation bar
 - Public pages: Home, About, Articles list and individual articles
 - Accounts: sign in, create an account and sign out with Firebase Authentication (email and password)
-- Signed-in users can upvote an article (once per user) and add comments
+- Signed-in users can upvote an article (once per user) and add comments. A comment shows its author's email address.
 
 ## Tech stack
 
@@ -23,7 +23,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 | Back end   | Node.js 22, Express 5, MongoDB Node driver, Firebase Admin SDK |
 | Data       | MongoDB Atlas |
 | Hosting    | Google Cloud App Engine (standard, `nodejs22` runtime) |
-| Tooling    | ESLint 9, GitHub Actions, Dependabot, Claude Code |
+| Tooling    | ESLint 9, `node:test`, GitHub Actions, Dependabot, Claude Code |
 
 ## Project structure
 
@@ -37,9 +37,12 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   └── main.jsx           # Entry point and Firebase client config
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
-│   ├── src/server.js
+│   ├── src/
+│   │   ├── app.js             # Routes, built by createApp({ db, verifyIdToken })
+│   │   └── server.js          # Startup: reads secrets, connects to MongoDB, listens
+│   ├── test/                  # API tests (node:test, in-memory fakes)
 │   └── app.yaml               # App Engine config
-├── .claude/commands/          # Claude Code slash commands (/run-local, /deploy, ...)
+├── .claude/                   # Claude Code slash commands and SessionStart hook
 └── .github/                   # CI, Dependabot and Claude workflows
 ```
 
@@ -79,6 +82,8 @@ env_variables:
   MONGODB_PASSWORD: "your-password"
 ```
 
+To use a different MongoDB, such as a local `mongod`, set `MONGODB_URI` (e.g. `MONGODB_URI=mongodb://localhost:27017`) instead of the username and password.
+
 The Atlas cluster host and database name (`full-stack-react-db`) are set in `back-end/src/server.js`, and the Firebase client config is in `front-end/src/main.jsx`. Change both if you point the app at your own projects.
 
 ### 3. Seed the database
@@ -110,18 +115,19 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `front-end` | `npm run build`   | Build to `front-end/dist` |
 | `front-end` | `npm run lint`    | Run ESLint |
 | `front-end` | `npm run preview` | Serve the production build locally |
+| `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
 | `back-end`  | `npm run dev`     | Start the API with nodemon |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |
 
 ## API
 
-All routes are under `/api`. Write routes need a Firebase ID token in an `authtoken` request header.
+All routes are under `/api`. Write routes need a Firebase ID token in an `authtoken` request header. A missing or invalid token returns `401`, and an unknown article returns `404`.
 
 | Method | Path | Auth | Description |
 | ------ | ---- | ---- | ----------- |
 | `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |
-| `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article (once per user; `403` if already upvoted) |
-| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "postedBy": "...", "text": "..." }` |
+| `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
+| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`. The author is the signed-in user's email. Returns `400` for empty text |
 
 Any other non-`/api` path returns the front end's `index.html`, so client-side routes work on refresh.
 
@@ -139,7 +145,7 @@ cd ../back-end && gcloud app deploy --project=<your-project-id>
 
 ## Continuous integration
 
-- **CI** (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`. It lints and builds the front end and checks that the back end's dependencies load.
+- **CI** (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`. It lints and builds the front end, runs the back-end tests and checks that the back end's dependencies load.
 - **Dependabot** opens weekly update PRs for npm packages and GitHub Actions. Minor and patch updates are grouped and merge automatically once CI passes. Major updates wait for review.
 - **Claude Code** reviews pull requests automatically, and responds when someone mentions `@claude` in an issue or PR.
 

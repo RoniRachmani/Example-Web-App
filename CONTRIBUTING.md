@@ -12,9 +12,10 @@ Follow [Getting started](README.md#getting-started) in the README. You'll need N
 2. Keep each pull request focused on one change.
 3. Before pushing, run the same checks CI does:
    ```bash
-   cd front-end && npm run lint && npm run build
+   cd back-end && npm test
+   cd ../front-end && npm run lint && npm run build
    ```
-   If you changed back-end dependencies, also start the back end locally to confirm it still boots.
+   The back-end tests use in-memory fakes, so they run without MongoDB or the secret files. Add or update tests in `back-end/test/` when you change the API.
 4. Open a pull request and fill in the template. CI must pass before merging.
 
 ## Guidelines

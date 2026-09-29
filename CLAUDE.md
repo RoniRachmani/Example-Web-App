@@ -7,7 +7,7 @@ Guidance for Claude Code when working in this repository.
 Blogify is a small full-stack blog. There are two independent npm packages with no shared workspace:
 
 - `front-end/`: React 19 SPA built with Vite. Routes are defined in `src/App.jsx` with React Router 7 data loaders (`ArticlePage` exports a `loader`). Article text is static in `src/article-content.js`. Firebase Auth (email/password) runs client-side, and the Firebase client config is in `src/main.jsx`.
-- `back-end/`: One Express 5 file, `src/server.js`. It serves `../dist` (the copied front-end build) and a small `/api` backed by MongoDB Atlas. Write routes verify a Firebase ID token passed in the `authtoken` header using firebase-admin.
+- `back-end/`: Express 5. `src/app.js` builds the app with `createApp({ db, verifyIdToken })`: it serves `../dist` (the copied front-end build) and a small `/api` backed by MongoDB. Write routes sit behind a middleware that verifies the Firebase ID token in the `authtoken` header and take the user from `req.user`, never from the request body. `src/server.js` is only startup: it reads `credentials.json`, initialises firebase-admin, connects to MongoDB (`MONGODB_URI`, or the Atlas URI built from `MONGODB_USERNAME`/`MONGODB_PASSWORD`) and listens.
 
 MongoDB only stores `{ name, upvotes, upvoteIds, comments }` per article, keyed by the article `name` from `article-content.js`.
 
@@ -24,9 +24,12 @@ npm run build    # outputs front-end/dist
 # back-end/
 npm run dev      # nodemon on :8000
 npm start
+npm test         # node:test API tests with in-memory fakes; no DB or secrets needed
 ```
 
-There are no automated tests. CI (`.github/workflows/ci.yml`) runs front-end `lint` and `build`, and checks that `back-end/src/server.js` gets as far as reading `credentials.json`, which proves its imports resolve. Before you push, run `npm run lint` and `npm run build` in `front-end/`.
+CI (`.github/workflows/ci.yml`) runs front-end `lint` and `build`, back-end `npm test`, and checks that `back-end/src/server.js` gets as far as reading `credentials.json`, which proves its imports resolve. Before you push, run the same checks. API changes need tests in `back-end/test/`, using the fakes passed to `createApp` rather than a real database. Return `401` for missing or invalid tokens, `404` for unknown articles and `400` for invalid input.
+
+In Claude Code on the web, the SessionStart hook (`.claude/hooks/session-start.sh`) runs `npm ci` in both packages, so these checks work straight away.
 
 ## Secrets and local setup
 
