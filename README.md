@@ -38,7 +38,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   ├── displayName.js     # Display name validation and save helper
 │   │   ├── text.js            # Text limits and name clean-up (copy of back-end/src/text.js)
 │   │   └── main.jsx           # Entry point and Firebase client config
-│   ├── e2e/                   # Browser tests (Playwright, with Firebase and /api faked)
+│   ├── e2e/                   # Browser tests (Playwright; Firebase faked, /api is the real back end)
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
 │   ├── src/
@@ -120,7 +120,7 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `front-end` | `npm run build`   | Build to `front-end/dist` |
 | `front-end` | `npm run lint`    | Run ESLint |
 | `front-end` | `npm run preview` | Serve the production build locally |
-| `front-end` | `npm run test:e2e` | Build the app and run the browser tests in Chromium. Firebase and the API are faked, so no back end or secrets are needed. Run `npx playwright install chromium` once first |
+| `front-end` | `npm run test:e2e` | Build the app and run the browser tests in Chromium. Firebase is faked and the API is the real back end with an in-memory database, so no MongoDB or secrets are needed, but `back-end` must have its dependencies installed. Run `npx playwright install chromium` once first |
 | `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
 | `back-end`  | `npm run dev`     | Start the API with nodemon |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |

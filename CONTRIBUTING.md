@@ -17,7 +17,7 @@ Follow [Getting started](README.md#getting-started) in the README. You'll need N
    ```
    The back-end tests use in-memory fakes, so they run without MongoDB or the secret files. Add or update tests in `back-end/test/` when you change the API.
 
-   The browser tests in `front-end/e2e/` fake Firebase and the API, so they don't need a back end or secrets either. Run `npx playwright install chromium` once before the first run. Add or update them when you change sign-up, the profile page, the comment form or the nav bar.
+   The browser tests in `front-end/e2e/` fake Firebase and run the real back end with an in-memory database, so they don't need MongoDB or secrets either, but both packages must be installed. Run `npx playwright install chromium` once before the first run. Add or update them when you change sign-up, the profile page, the comment form or the nav bar.
 4. Open a pull request and fill in the template. CI must pass before merging.
 
 ## Guidelines
