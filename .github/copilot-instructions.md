@@ -4,7 +4,7 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 
 ### Required Before Each Commit
 - Back end: run `npm test` in `back-end/`
-- Front end: run `npm run lint` and `npm run build` in `front-end/`
+- Front end: run `npm run lint`, `npm run build` and `npm run test:e2e` in `front-end/` (run `npx playwright install chromium` once first)
 - CI runs the same checks on every pull request (`.github/workflows/ci.yml`)
 
 ### Development Flow
@@ -20,6 +20,7 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 - `front-end/src/pages/`: one component per route; `ArticlePage.jsx` also exports the route's `loader`
 - `front-end/src/App.jsx`: React Router routes
 - `front-end/src/article-content.js`: article titles and text; MongoDB holds only upvotes and comments
+- `front-end/e2e/`: Playwright browser tests; `fixtures.js` fakes Firebase Auth and the `/api` routes
 - `.claude/commands/`: Claude Code commands, including `/deploy`
 
 ## Key Guidelines

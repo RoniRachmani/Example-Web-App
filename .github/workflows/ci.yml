@@ -29,6 +29,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      - name: Install Chromium for the browser tests
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   back-end:
     runs-on: ubuntu-latest

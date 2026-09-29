@@ -38,6 +38,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   ├── displayName.js     # Display name validation and save helper
 │   │   ├── text.js            # Text limits and name clean-up (copy of back-end/src/text.js)
 │   │   └── main.jsx           # Entry point and Firebase client config
+│   ├── e2e/                   # Browser tests (Playwright, with Firebase and /api faked)
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
 │   ├── src/
@@ -119,6 +120,7 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `front-end` | `npm run build`   | Build to `front-end/dist` |
 | `front-end` | `npm run lint`    | Run ESLint |
 | `front-end` | `npm run preview` | Serve the production build locally |
+| `front-end` | `npm run test:e2e` | Build the app and run the browser tests in Chromium. Firebase and the API are faked, so no back end or secrets are needed. Run `npx playwright install chromium` once first |
 | `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
 | `back-end`  | `npm run dev`     | Start the API with nodemon |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |
@@ -149,7 +151,7 @@ cd ../back-end && gcloud app deploy --project=<your-project-id>
 
 ## Continuous integration
 
-- **CI** (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`. It lints and builds the front end, runs the back-end tests and checks that the back end's dependencies load.
+- **CI** (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`. It lints and builds the front end, runs the browser tests and the back-end tests, and checks that the back end's dependencies load.
 - **Dependabot** opens weekly update PRs for npm packages and GitHub Actions. Minor and patch updates are grouped and merge automatically once CI passes. Major updates wait for review.
 - **Claude Code** reviews pull requests automatically, and responds when someone mentions `@claude` in an issue or PR.
 
