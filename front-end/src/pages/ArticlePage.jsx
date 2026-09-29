@@ -24,11 +24,10 @@ export default function ArticlePage() {
     setUpvotes(updatedArticleData.upvotes);
   }
 
-  async function onAddComment({ nameText, commentText }) {
+  async function onAddComment({ commentText }) {
     const token = user && await user.getIdToken();
     const headers = token ? { authtoken: token } : {};
     const response = await axios.post('/api/articles/' + name + '/comments', {
-      postedBy: nameText,
       text: commentText,
     }, { headers });
     const updatedArticleData = response.data;
@@ -50,6 +49,11 @@ export default function ArticlePage() {
 }
 
 export async function loader({ params }) {
+  // Thrown responses are caught by the route's errorElement, which shows NotFoundPage.
+  if (!articles.some(a => a.name === params.name)) {
+    throw new Response('Not Found', { status: 404 });
+  }
+
   const response = await axios.get('/api/articles/' + params.name);
   const { upvotes, comments } = response.data;
   return { upvotes, comments };
