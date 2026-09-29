@@ -11,6 +11,7 @@ import Layout from './Layout';
 import NotFoundPage from './pages/NotFoundPage';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
+import ProfilePage from './pages/ProfilePage';
 
 const routes = [{
   path: '/',
@@ -35,6 +36,9 @@ const routes = [{
   }, {
     path: '/create-account',
     element: <CreateAccountPage />
+  }, {
+    path: '/profile',
+    element: <ProfilePage />,
   }]
 }]
 

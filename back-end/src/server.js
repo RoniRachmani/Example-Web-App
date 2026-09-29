@@ -22,7 +22,7 @@ initializeApp({
 const app = express();
 
 const MAX_COMMENT_LENGTH = 1000;
-// Matches the limit on the display name field in CreateAccountPage.jsx.
+// Matches MAX_DISPLAY_NAME_LENGTH in front-end/src/displayName.js.
 const MAX_DISPLAY_NAME_LENGTH = 50;
 
 // The name claim is set by the user, so the sign-up form's limit can be

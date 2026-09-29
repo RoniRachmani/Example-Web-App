@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-
-const MAX_DISPLAY_NAME_LENGTH = 50;
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { MAX_DISPLAY_NAME_LENGTH, saveDisplayName } from '../displayName';
 
 export default function CreateAccountPage() {
   const [displayName, setDisplayName] = useState('');
@@ -28,10 +27,7 @@ export default function CreateAccountPage() {
 
     try {
       const { user } = await createUserWithEmailAndPassword(getAuth(), email, password);
-      await updateProfile(user, { displayName: trimmedName });
-      // The token issued at sign-up has no name claim; refresh it so the
-      // server sees the display name on this session's first comment.
-      await user.getIdToken(true);
+      await saveDisplayName(user, trimmedName);
       navigate('/articles');
     } catch (e) {
       setError(e.message);
