@@ -13,6 +13,10 @@ export function countChars(text) {
 // Control characters never belong in a name, and bidi overrides and isolates can
 // make one display reversed.
 const UNSAFE_CHARS = /[\p{Cc}‪-‮⁦-⁩]/gu;
+export function removeUnsafeChars(text) {
+  return text.replace(UNSAFE_CHARS, '');
+}
+
 // Characters that show nothing on their own: format characters like zero-width
 // spaces, lone combining marks, spaces, and blank-looking letters and symbols.
 const INVISIBLE_CHARS = /[\p{Cf}\p{M}\p{Z}ᅟᅠ⠀ㅤﾠ]/gu;
@@ -21,7 +25,7 @@ const INVISIBLE_CHARS = /[\p{Cf}\p{M}\p{Z}ᅟᅠ⠀ㅤﾠ]/gu;
 // to MAX_DISPLAY_NAME_LENGTH characters, on a grapheme boundary so emoji
 // sequences, flags and accented letters aren't split.
 export function normalizeDisplayName(name) {
-  const cleaned = name.replace(UNSAFE_CHARS, '').trim();
+  const cleaned = removeUnsafeChars(name).trim();
 
   if (!cleaned.replace(INVISIBLE_CHARS, '')) {
     return '';

@@ -1,5 +1,5 @@
 import { updateProfile } from 'firebase/auth';
-import { MAX_DISPLAY_NAME_LENGTH, countChars, normalizeDisplayName } from './text';
+import { MAX_DISPLAY_NAME_LENGTH, countChars, normalizeDisplayName, removeUnsafeChars } from './text';
 
 // Returns [name, error]: the cleaned-up name to save, or a message to show.
 // The server applies the same rules (back-end/src/text.js).
@@ -10,7 +10,7 @@ export function validateDisplayName(input) {
     return [null, 'Please enter a display name.'];
   }
 
-  if (countChars(input.trim()) > MAX_DISPLAY_NAME_LENGTH) {
+  if (countChars(removeUnsafeChars(input).trim()) > MAX_DISPLAY_NAME_LENGTH) {
     return [null, `Display names can be at most ${MAX_DISPLAY_NAME_LENGTH} characters.`];
   }
 
