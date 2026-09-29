@@ -21,6 +21,8 @@ initializeApp({
 
 const app = express();
 
+const MAX_COMMENT_LENGTH = 1000;
+
 app.use(express.json());
 
 let db;
@@ -50,19 +52,28 @@ app.get(/^(?!\/api).+/, (req, res) => {
 app.get('/api/articles/:name', async (req, res) => {
   const { name } = req.params;
   const article = await db.collection('articles').findOne({ name });
+
+  if (!article) {
+    return res.sendStatus(404);
+  }
+
   res.json(article);
 });
 
 app.use(async function (req, res, next) {
   const { authtoken } = req.headers;
 
-  if (authtoken) {
-    const user = await getAuth().verifyIdToken(authtoken);
-    req.user = user;
-    next();
-  } else {
-    res.sendStatus(400);
+  if (!authtoken) {
+    return res.sendStatus(401);
   }
+
+  try {
+    req.user = await getAuth().verifyIdToken(authtoken);
+  } catch {
+    return res.sendStatus(401);
+  }
+
+  next();
 });
 
 app.post('/api/articles/:name/upvote', async (req, res) => {
@@ -70,6 +81,10 @@ app.post('/api/articles/:name/upvote', async (req, res) => {
   const { uid } = req.user;
 
   const article = await db.collection('articles').findOne({ name });
+
+  if (!article) {
+    return res.sendStatus(404);
+  }
 
   const upvoteIds = article.upvoteIds || [];
   const canUpvote = uid && !upvoteIds.includes(uid);
@@ -90,7 +105,15 @@ app.post('/api/articles/:name/upvote', async (req, res) => {
 
 app.post('/api/articles/:name/comments', async (req, res) => {
   const { name } = req.params;
-  const { postedBy, text } = req.body;
+  const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
+
+  if (!text || text.length > MAX_COMMENT_LENGTH) {
+    return res.status(400).json({
+      error: `Comment text must be between 1 and ${MAX_COMMENT_LENGTH} characters`,
+    });
+  }
+
+  const postedBy = req.user.name || req.user.email || 'Anonymous';
   const newComment = { postedBy, text };
 
   const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
@@ -98,6 +121,10 @@ app.post('/api/articles/:name/comments', async (req, res) => {
   }, {
     returnDocument: 'after',
   });
+
+  if (!updatedArticle) {
+    return res.sendStatus(404);
+  }
 
   res.json(updatedArticle);
 });

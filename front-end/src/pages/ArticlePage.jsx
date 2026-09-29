@@ -24,11 +24,10 @@ export default function ArticlePage() {
     setUpvotes(updatedArticleData.upvotes);
   }
 
-  async function onAddComment({ nameText, commentText }) {
+  async function onAddComment({ commentText }) {
     const token = user && await user.getIdToken();
     const headers = token ? { authtoken: token } : {};
     const response = await axios.post('/api/articles/' + name + '/comments', {
-      postedBy: nameText,
       text: commentText,
     }, { headers });
     const updatedArticleData = response.data;

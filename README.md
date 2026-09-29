@@ -27,6 +27,18 @@ A full-stack React app using Node.js and Express backend, MongoDB database, Fire
 - User authentication: Sign In, Create Account, Sign Out
 - Protected functionality: Adding comments & upvoting (available to logged-in users)
 
+## API
+
+Protected routes need a Firebase ID token in the `authtoken` header. A missing, invalid or expired token returns `401`.
+
+| Method | Route | Auth | Request body | Responses |
+| --- | --- | --- | --- | --- |
+| GET | `/api/articles/:name` | No | – | `200` article, `404` unknown article |
+| POST | `/api/articles/:name/upvote` | Yes | – | `200` updated article, `401` bad/missing token, `403` already upvoted, `404` unknown article |
+| POST | `/api/articles/:name/comments` | Yes | `{ "text": string }` (1–1000 chars, trimmed) | `200` updated article, `400` invalid `text`, `401` bad/missing token, `404` unknown article |
+
+A comment's `postedBy` is taken from the verified token (the user's display name, or their email if no name is set). The server ignores any `postedBy` sent in the request body.
+
 ## Screenshot
 
 ![Screenshot 2025-03-15 at 15 12 19](https://github.com/user-attachments/assets/57297544-746d-4b7a-bab2-a9c32df6896f)
