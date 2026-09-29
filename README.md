@@ -152,7 +152,7 @@ cd ../back-end && gcloud app deploy --project=<your-project-id>
 ## Continuous integration
 
 - **CI** (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`. It lints and builds the front end, runs the browser tests and the back-end tests, and checks that the back end's dependencies load.
-- **Dependabot** opens weekly update PRs for npm packages and GitHub Actions. Minor and patch updates are grouped and merge automatically once CI passes. Major updates wait for review.
+- **Dependabot** opens weekly update PRs for npm packages and GitHub Actions. npm minor and patch updates are grouped and merge automatically once CI passes. Major updates and GitHub Actions updates wait for review. Workflows pin actions to commit SHAs.
 - **Claude Code** reviews pull requests automatically, and responds when someone mentions `@claude` in an issue or PR.
 
 ## Contributing
