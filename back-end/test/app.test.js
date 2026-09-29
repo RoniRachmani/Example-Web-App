@@ -49,6 +49,8 @@ const users = {
   'emoji-name-token': { uid: 'erin', email: 'erin@example.com', name: 'E'.repeat(49) + '😀😀' },
   'blank-name-token': { uid: 'frank', email: 'frank@example.com', name: '   ' },
   'impostor-token': { uid: 'mallory', email: 'mallory@example.com', name: 'alice@example.com' },
+  'invisible-name-token': { uid: 'gina', email: 'gina@example.com', name: '\u200B\u200B' },
+  'reversed-name-token': { uid: 'hank', email: 'hank@example.com', name: '\u202Eknah' },
 };
 
 async function verifyIdToken(token) {
@@ -180,8 +182,23 @@ describe('articles API', () => {
       assert.equal((await res.json()).comments[0].postedBy, 'frank@example.com');
     });
 
+    it('falls back to the email when the display name is only invisible characters', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'invisible-name-token', body: { text: 'hi' } });
+      assert.equal((await res.json()).comments[0].postedBy, 'gina@example.com');
+    });
+
+    it('strips bidi overrides from the display name', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'reversed-name-token', body: { text: 'hi' } });
+      assert.equal((await res.json()).comments[0].postedBy, 'knah');
+    });
+
     it('accepts text of exactly 1000 characters', async () => {
       const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'x'.repeat(1000) } });
+      assert.equal(res.status, 200);
+    });
+
+    it('counts an emoji as one character in the text limit', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: '😀'.repeat(1000) } });
       assert.equal(res.status, 200);
     });
 

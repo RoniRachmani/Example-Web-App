@@ -6,10 +6,20 @@ const useUser = () => {
 
   useEffect(() => {
     // onIdTokenChanged also fires when the token changes, which happens when
-    // saveDisplayName changes the name. Storing a new object each
-    // time makes components re-render, since Firebase updates the user in place.
+    // saveDisplayName changes the name, and on every hourly token refresh.
+    // Firebase updates the user in place, so store a new object (and re-render)
+    // only when the user or what components show about them has changed.
     const unsubscribe = onIdTokenChanged(getAuth(), function(user) {
-      setState({ isLoading: false, user });
+      setState(prev => {
+        const unchanged = !prev.isLoading
+          && prev.user === user
+          && prev.displayName === user?.displayName
+          && prev.email === user?.email;
+
+        return unchanged
+          ? prev
+          : { isLoading: false, user, displayName: user?.displayName, email: user?.email };
+      });
     });
 
     return unsubscribe;

@@ -35,12 +35,14 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   ├── pages/             # Route components (Home, About, Articles, Article, Login, ...)
 │   │   ├── article-content.js # Article titles and bodies (static)
 │   │   ├── useUser.js         # Hook exposing the current Firebase user
-│   │   ├── displayName.js     # Display name length limit and save helper
+│   │   ├── displayName.js     # Display name validation and save helper
+│   │   ├── text.js            # Text limits and name clean-up (copy of back-end/src/text.js)
 │   │   └── main.jsx           # Entry point and Firebase client config
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
 │   ├── src/
 │   │   ├── app.js             # Routes, built by createApp({ db, verifyIdToken })
+│   │   ├── text.js            # Text limits and name clean-up, shared with the front end
 │   │   └── server.js          # Startup: reads secrets, connects to MongoDB, listens
 │   ├── test/                  # API tests (node:test, in-memory fakes)
 │   └── app.yaml               # App Engine config
@@ -129,7 +131,7 @@ All routes are under `/api`. Write routes need a Firebase ID token in an `authto
 | ------ | ---- | ---- | ----------- |
 | `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |
 | `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
-| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name (trimmed and cut to 50 characters), or their email if they have no name. Each comment also stores the author's `uid`, since display names aren't unique |
+| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name, or their email if they have no name or it has nothing visible in it. Names have control and bidi-override characters removed and are cut to 50 characters without splitting an emoji. Limits count Unicode code points, so an emoji is one character. Each comment also stores the author's `uid`, since display names aren't unique |
 
 Any other non-`/api` path returns the front end's `index.html`, so client-side routes work on refresh.
 
