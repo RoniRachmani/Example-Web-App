@@ -13,7 +13,8 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 - Dark or light theme (follows the OS setting) with a top navigation bar
 - Public pages: Home, About, Articles list and individual articles
 - Accounts: sign in, create an account and sign out with Firebase Authentication (email and password)
-- Signed-in users can upvote an article (once per user) and add comments. A comment shows its author's email address.
+- A display name, set when creating an account and changeable on the Profile page
+- Signed-in users can upvote an article (once per user) and add comments. A comment shows its author's display name, or their email address if they haven't set one.
 
 ## Tech stack
 
@@ -34,6 +35,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   ├── pages/             # Route components (Home, About, Articles, Article, Login, ...)
 │   │   ├── article-content.js # Article titles and bodies (static)
 │   │   ├── useUser.js         # Hook exposing the current Firebase user
+│   │   ├── displayName.js     # Display name length limit and save helper
 │   │   └── main.jsx           # Entry point and Firebase client config
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
@@ -127,7 +129,7 @@ All routes are under `/api`. Write routes need a Firebase ID token in an `authto
 | ------ | ---- | ---- | ----------- |
 | `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |
 | `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
-| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`. The author is the signed-in user's email. Returns `400` for empty text |
+| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name (trimmed and cut to 50 characters), or their email if they have no name |
 
 Any other non-`/api` path returns the front end's `index.html`, so client-side routes work on refresh.
 

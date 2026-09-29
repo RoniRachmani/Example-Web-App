@@ -5,6 +5,17 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const MAX_COMMENT_LENGTH = 1000;
+// Matches MAX_DISPLAY_NAME_LENGTH in front-end/src/displayName.js.
+const MAX_DISPLAY_NAME_LENGTH = 50;
+
+// The name claim is set by the user, so the front end's limit can be
+// bypassed. Truncate rather than reject so a long name can't block commenting.
+function getDisplayName(user) {
+  const name = typeof user.name === 'string' ? user.name.trim() : '';
+  return [...name].slice(0, MAX_DISPLAY_NAME_LENGTH).join('');
+}
+
 // db is a connected MongoDB database, and verifyIdToken checks a Firebase ID token
 // and resolves to its decoded claims. They're passed in so tests can use fakes.
 export function createApp({ db, verifyIdToken }) {
@@ -71,11 +82,14 @@ export function createApp({ db, verifyIdToken }) {
     const { name } = req.params;
     const { text } = req.body ?? {};
 
-    if (typeof text !== 'string' || !text.trim()) {
+    const trimmedText = typeof text === 'string' ? text.trim() : '';
+
+    if (!trimmedText || trimmedText.length > MAX_COMMENT_LENGTH) {
       return res.sendStatus(400);
     }
 
-    const newComment = { postedBy: req.user.email, text: text.trim() };
+    const postedBy = getDisplayName(req.user) || req.user.email;
+    const newComment = { postedBy, text: trimmedText };
 
     const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
       $push: { comments: newComment }

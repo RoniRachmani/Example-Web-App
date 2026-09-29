@@ -44,6 +44,10 @@ function createFakeDb(articles) {
 const users = {
   'alice-token': { uid: 'alice', email: 'alice@example.com' },
   'bob-token': { uid: 'bob', email: 'bob@example.com' },
+  'carol-token': { uid: 'carol', email: 'carol@example.com', name: '  Carol  ' },
+  'long-name-token': { uid: 'dave', email: 'dave@example.com', name: 'D'.repeat(80) },
+  'emoji-name-token': { uid: 'erin', email: 'erin@example.com', name: 'E'.repeat(49) + '😀😀' },
+  'blank-name-token': { uid: 'frank', email: 'frank@example.com', name: '   ' },
 };
 
 async function verifyIdToken(token) {
@@ -143,6 +147,38 @@ describe('articles API', () => {
       });
       assert.equal(res.status, 200);
       assert.deepEqual((await res.json()).comments, [{ postedBy: 'alice@example.com', text: 'Nice article' }]);
+    });
+
+    it('uses the display name from the token, trimmed', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'carol-token', body: { text: 'hi' } });
+      assert.equal(res.status, 200);
+      assert.equal((await res.json()).comments[0].postedBy, 'Carol');
+    });
+
+    it('cuts a long display name to 50 characters', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'long-name-token', body: { text: 'hi' } });
+      assert.equal((await res.json()).comments[0].postedBy, 'D'.repeat(50));
+    });
+
+    it('does not split an emoji when cutting a display name', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'emoji-name-token', body: { text: 'hi' } });
+      assert.equal((await res.json()).comments[0].postedBy, 'E'.repeat(49) + '😀');
+    });
+
+    it('falls back to the email when the display name is blank', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'blank-name-token', body: { text: 'hi' } });
+      assert.equal((await res.json()).comments[0].postedBy, 'frank@example.com');
+    });
+
+    it('accepts text of exactly 1000 characters', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'x'.repeat(1000) } });
+      assert.equal(res.status, 200);
+    });
+
+    it('returns 400 for text over 1000 characters', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'x'.repeat(1001) } });
+      assert.equal(res.status, 400);
+      assert.deepEqual(db.docs[0].comments, []);
     });
 
     it('returns 400 for empty text', async () => {

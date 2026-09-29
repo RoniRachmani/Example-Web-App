@@ -81,6 +81,16 @@ nav ul {
 nav li {
   display: inline;
   margin: 0 15px;
+  white-space: nowrap;
+}
+
+/* Long display names get an ellipsis instead of overflowing on narrow screens. */
+nav li.nav-user {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
 }
 
 nav a {

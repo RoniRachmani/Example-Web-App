@@ -23,9 +23,14 @@ export default function NavBar() {
         {isLoading ? <li>Loading...</li> : (
           <>
           {user && (
-            <li style={{ color: 'white' }}>
-              Logged in as {user.email}
+            <>
+            <li className='nav-user' style={{ color: 'white' }}>
+              Logged in as {user.displayName || user.email}
             </li>
+            <li>
+              <Link to='/profile'>Profile</Link>
+            </li>
+            </>
           )}
           <li>
             {user

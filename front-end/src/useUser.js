@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onIdTokenChanged } from 'firebase/auth';
 
 const useUser = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [state, setState] = useState({ isLoading: true, user: null });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), function(user) {
-      setUser(user);
-      setIsLoading(false);
+    // onIdTokenChanged also fires when the token changes, which happens when
+    // saveDisplayName changes the name. Storing a new object each
+    // time makes components re-render, since Firebase updates the user in place.
+    const unsubscribe = onIdTokenChanged(getAuth(), function(user) {
+      setState({ isLoading: false, user });
     });
 
     return unsubscribe;
   }, []);
 
-  return { isLoading, user };
+  return state;
 }
 
 export default useUser;
