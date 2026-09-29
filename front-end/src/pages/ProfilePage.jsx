@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useUser from '../useUser';
-import { MAX_DISPLAY_NAME_LENGTH, saveDisplayName } from '../displayName';
+import { saveDisplayName, validateDisplayName } from '../displayName';
 
 export default function ProfilePage() {
   const { isLoading, user } = useUser();
@@ -32,17 +32,17 @@ function ProfileForm({ user }) {
   const [isSaving, setIsSaving] = useState(false);
 
   async function save() {
-    const trimmedName = displayName.trim();
+    const [name, nameError] = validateDisplayName(displayName);
 
-    if (!trimmedName) {
-      setMessage('Please enter a display name.');
+    if (nameError) {
+      setMessage(nameError);
       return;
     }
 
     setIsSaving(true);
     try {
-      await saveDisplayName(user, trimmedName);
-      setDisplayName(trimmedName);
+      await saveDisplayName(user, name);
+      setDisplayName(name);
       setMessage('Display name saved.');
     } catch (e) {
       setMessage(e.message);
@@ -59,7 +59,6 @@ function ProfileForm({ user }) {
     <label>
       Display name (shown on your comments):
       <input
-        maxLength={MAX_DISPLAY_NAME_LENGTH}
         value={displayName}
         onChange={e => setDisplayName(e.target.value)} />
     </label>

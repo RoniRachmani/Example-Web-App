@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { MAX_DISPLAY_NAME_LENGTH, saveDisplayName } from '../displayName';
+import { saveDisplayName, validateDisplayName } from '../displayName';
 
 export default function CreateAccountPage() {
   const [displayName, setDisplayName] = useState('');
@@ -13,10 +13,10 @@ export default function CreateAccountPage() {
   const navigate = useNavigate();
 
   async function createAccount() {
-    const trimmedName = displayName.trim();
+    const [name, nameError] = validateDisplayName(displayName);
 
-    if (!trimmedName) {
-      setError('Please enter a display name.');
+    if (nameError) {
+      setError(nameError);
       return;
     }
 
@@ -34,7 +34,7 @@ export default function CreateAccountPage() {
     }
 
     try {
-      await saveDisplayName(user, trimmedName);
+      await saveDisplayName(user, name);
       navigate('/articles');
     } catch {
       // The account exists and the user is signed in, so retrying here would fail
@@ -51,7 +51,6 @@ export default function CreateAccountPage() {
     {error && <p>{error}</p>}
     <input
       placeholder='Display name (shown on your comments)'
-      maxLength={MAX_DISPLAY_NAME_LENGTH}
       value={displayName}
       onChange={e => setDisplayName(e.target.value)} />
     <input
