@@ -36,8 +36,8 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
-    # Workflows pin actions to major tags (e.g. @v7), so these PRs are almost always majors
-    # and wait for review; see workflows/dependabot-auto-merge.yml.
+    # Workflows pin actions to commit SHAs with a version comment, which Dependabot updates
+    # together. These PRs never auto-merge; see workflows/dependabot-auto-merge.yml.
     groups:
       github-actions:
         patterns:
