@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Blogify! This is a small learning project, so contributions of any size are welcome.
+Thanks for helping improve Blogify! This is a small learning project, so contributions of any size are welcome. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), and note that contributions are licensed under the project's [MIT License](LICENSE).
 
 ## Setup
 

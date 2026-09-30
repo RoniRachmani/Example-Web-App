@@ -157,7 +157,11 @@ cd ../back-end && gcloud app deploy --project=<your-project-id>
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). To report a security issue, see [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security issue, see [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)
 
 ## Acknowledgements
 
