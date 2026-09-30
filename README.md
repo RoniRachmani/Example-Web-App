@@ -129,6 +129,8 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 
 All routes are under `/api`. Write routes need a Firebase ID token in an `authtoken` request header. A missing or invalid token returns `401`, and an unknown article returns `404`.
 
+Requests are rate limited and return `429` over the limit: 1000 requests per client IP every 15 minutes across the whole site, and 30 upvotes and comments per user every 15 minutes. Responses carry the standard `RateLimit` and `RateLimit-Policy` headers.
+
 | Method | Path | Auth | Description |
 | ------ | ---- | ---- | ----------- |
 | `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |

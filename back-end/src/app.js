@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 
 import { MAX_COMMENT_LENGTH, countChars, normalizeDisplayName } from './text.js';
 
@@ -13,10 +14,46 @@ function getDisplayName(user) {
   return typeof user.name === 'string' ? normalizeDisplayName(user.name) : '';
 }
 
+// Per window: `requests` is for any route, per client IP (a page load is a handful
+// of requests), and `writes` is for upvotes and comments, per signed-in user.
+// Counts are kept in memory, so each App Engine instance counts separately.
+export const DEFAULT_RATE_LIMITS = {
+  windowMs: 15 * 60 * 1000,
+  requests: 1000,
+  writes: 30,
+};
+
+// App Engine sets X-AppEngine-User-IP to the client's address and drops any copy
+// the client sends, so it can't be spoofed there. Behind App Engine's proxies
+// req.ip isn't the client, so it's only the fallback for local runs and tests.
+function clientIp(req) {
+  return req.get('x-appengine-user-ip') ?? req.ip;
+}
+
 // db is a connected MongoDB database, and verifyIdToken checks a Firebase ID token
 // and resolves to its decoded claims. They're passed in so tests can use fakes.
-export function createApp({ db, verifyIdToken }) {
+export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS }) {
   const app = express();
+
+  app.use(rateLimit({
+    windowMs: rateLimits.windowMs,
+    limit: rateLimits.requests,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    keyGenerator: req => ipKeyGenerator(clientIp(req)),
+    // App Engine adds X-Forwarded-For, but the key doesn't use req.ip there
+    validate: { xForwardedForHeader: false },
+  }));
+
+  const writeLimit = rateLimit({
+    windowMs: rateLimits.windowMs,
+    limit: rateLimits.writes,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    // Runs after the auth middleware, so every request here has a verified user
+    keyGenerator: req => req.user.uid,
+    validate: { xForwardedForHeader: false },
+  });
 
   app.use(express.json());
 
@@ -53,7 +90,7 @@ export function createApp({ db, verifyIdToken }) {
     next();
   });
 
-  app.post('/api/articles/:name/upvote', async (req, res) => {
+  app.post('/api/articles/:name/upvote', writeLimit, async (req, res) => {
     const { name } = req.params;
     const { uid } = req.user;
 
@@ -75,7 +112,7 @@ export function createApp({ db, verifyIdToken }) {
     }
   });
 
-  app.post('/api/articles/:name/comments', async (req, res) => {
+  app.post('/api/articles/:name/comments', writeLimit, async (req, res) => {
     const { name } = req.params;
     const { text } = req.body ?? {};
 
