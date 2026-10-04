@@ -105,9 +105,10 @@ describe('articles API', () => {
 
     it('let the page reach Firebase Auth', async () => {
       const res = await request('GET', '/api/articles/learn-react');
-      const connectSrc = res.headers.get('content-security-policy').match(/connect-src ([^;]+)/)[1].split(' ');
-      assert.ok(connectSrc.includes('https://identitytoolkit.googleapis.com'));
-      assert.ok(connectSrc.includes('https://securetoken.googleapis.com'));
+      // A set of whole sources, so each host is matched exactly rather than as a substring.
+      const connectSrc = new Set(res.headers.get('content-security-policy').match(/connect-src ([^;]+)/)[1].split(' '));
+      assert.ok(connectSrc.has('https://identitytoolkit.googleapis.com'));
+      assert.ok(connectSrc.has('https://securetoken.googleapis.com'));
     });
   });
 
