@@ -24,7 +24,7 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 | Back end   | Node.js 22, Express 5, MongoDB Node driver, Firebase Admin SDK |
 | Data       | MongoDB Atlas |
 | Hosting    | Google Cloud App Engine (standard, `nodejs22` runtime) |
-| Tooling    | ESLint 9, `node:test`, GitHub Actions, Dependabot, Claude Code |
+| Tooling    | ESLint 10, `node:test`, GitHub Actions, Dependabot, Claude Code |
 
 ## Project structure
 

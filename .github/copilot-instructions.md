@@ -30,5 +30,5 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 4. Add or update tests in `back-end/test/` for API changes, using the fakes passed to `createApp` rather than a real database
 5. Keep dependency changes minimal; Dependabot manages version bumps
 6. Target Node 22 (`.nvmrc`), matching App Engine and CI
-7. Keep ESLint on v9, since `eslint-plugin-react` does not support v10, and keep the `overrides` in each `package.json`, which pin patched transitive dependencies
+7. Keep the `overrides` in each `package.json`, which pin patched transitive dependencies
 8. Update `README.md` when you change setup steps, environment variables or API routes

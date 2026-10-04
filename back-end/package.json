@@ -13,12 +13,12 @@
   "license": "MIT",
   "description": "Express API for Blogify: serves the built front end and the articles API backed by MongoDB and Firebase Auth",
   "dependencies": {
-    "dotenv": "^18.0.4",
+    "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "firebase-admin": "^14.5.0",
     "helmet": "^8.3.0",
-    "mongodb": "^7.6.0"
+    "mongodb": "^7.7.0"
   },
   "overrides": {
     "@grpc/grpc-js": "1.14.5",
