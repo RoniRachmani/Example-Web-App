@@ -51,9 +51,21 @@ const CONTENT_SECURITY_POLICY = {
   },
 };
 
+// App Engine sets every deployed file's date to 1980, so Express's ETag (file size
+// plus date) is the same for two builds of index.html, which differ only in the
+// hashed script name. A browser revalidating after a deploy would be told "not
+// modified" and keep a page that asks for a script that's gone. So these files are
+// sent without validators, and the browser fetches them in full each time.
+const UNHASHED_FILE_OPTIONS = {
+  etag: false,
+  lastModified: false,
+  setHeaders: res => res.set('Cache-Control', 'no-cache'),
+};
+
 // db is a connected MongoDB database, and verifyIdToken checks a Firebase ID token
 // and resolves to its decoded claims. They're passed in so tests can use fakes.
-export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS }) {
+// distDir is the built front end, which tests replace with a small fixture.
+export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS, distDir = path.join(__dirname, '../dist') }) {
   const app = express();
 
   // First, so every response gets the security headers, including a 429 from the
@@ -89,10 +101,24 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS 
 
   app.use(express.json());
 
-  app.use(express.static(path.join(__dirname, '../dist')))
+  // Vite puts a content hash in every file name under /assets, so a name never
+  // changes content and browsers can keep the file for good.
+  app.use('/assets', express.static(path.join(distDir, 'assets'), { immutable: true, maxAge: '1y' }));
 
-  app.get(/^(?!\/api).+/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  // An asset that isn't there is from an older build. Don't let it fall through
+  // to index.html below: a script tag would get HTML back with a 200.
+  app.use('/assets', (req, res) => {
+    res.sendStatus(404);
+  });
+
+  const unhashedFiles = express.static(distDir, UNHASHED_FILE_OPTIONS);
+  app.use(unhashedFiles);
+
+  // Any other page is a route in the single-page app. res.sendFile would add an
+  // ETag whatever its options say, so index.html goes through the same middleware.
+  app.get(/^(?!\/api).+/, (req, res, next) => {
+    req.url = '/index.html';
+    unhashedFiles(req, res, () => res.sendStatus(404));
   });
 
   app.get('/api/articles/:name', async (req, res) => {

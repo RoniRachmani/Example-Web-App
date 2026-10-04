@@ -1,6 +1,9 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { createApp } from '../src/app.js';
 import { createFakeDb } from './fake-db.js';
 
@@ -61,6 +64,66 @@ describe('articles API', () => {
     it('returns 404 for an unknown article', async () => {
       const res = await request('GET', '/api/articles/nope');
       assert.equal(res.status, 404);
+    });
+  });
+
+  describe('front-end files', () => {
+    let distDir;
+
+    beforeEach(async () => {
+      distDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blogify-dist-'));
+      fs.mkdirSync(path.join(distDir, 'assets'));
+      fs.writeFileSync(path.join(distDir, 'index.html'), '<script src="/assets/index-abc123.js"></script>');
+      fs.writeFileSync(path.join(distDir, 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+      fs.writeFileSync(path.join(distDir, 'assets/index-abc123.js'), 'console.log(1)');
+
+      stopServer();
+      await startServer({ distDir });
+    });
+
+    afterEach(() => fs.rmSync(distDir, { recursive: true }));
+
+    // What a browser sends when it revalidates a copy it already has.
+    const revalidate = { 'if-none-match': '*', 'if-modified-since': new Date(Date.now() + 60_000).toUTCString() };
+
+    function assertAlwaysSentInFull(res) {
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('cache-control'), 'no-cache');
+      assert.equal(res.headers.get('etag'), null);
+      assert.equal(res.headers.get('last-modified'), null);
+    }
+
+    for (const page of ['/', '/index.html', '/articles/learn-react']) {
+      it(`sends index.html in full for ${page}, even to a browser that has a copy`, async () => {
+        const res = await request('GET', page, { headers: revalidate });
+        assertAlwaysSentInFull(res);
+        assert.match(await res.text(), /index-abc123\.js/);
+      });
+    }
+
+    it('sends other unhashed files in full too', async () => {
+      const res = await request('GET', '/favicon.svg', { headers: revalidate });
+      assertAlwaysSentInFull(res);
+      assert.match(res.headers.get('content-type'), /svg/);
+    });
+
+    it('lets browsers keep hashed assets for good', async () => {
+      const res = await request('GET', '/assets/index-abc123.js');
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('cache-control'), 'public, max-age=31536000, immutable');
+      assert.equal(await res.text(), 'console.log(1)');
+    });
+
+    it('returns 404 for a page when the front end has not been built', async () => {
+      fs.rmSync(path.join(distDir, 'index.html'));
+      const res = await request('GET', '/articles/learn-react');
+      assert.equal(res.status, 404);
+    });
+
+    it("returns 404 for an asset from an older build, not index.html", async () => {
+      const res = await request('GET', '/assets/index-old999.js');
+      assert.equal(res.status, 404);
+      assert.doesNotMatch(await res.text(), /<script/);
     });
   });
 
