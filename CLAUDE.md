@@ -23,7 +23,7 @@ npm run build    # outputs front-end/dist
 npm run test:e2e # Playwright browser tests against the production build; Firebase is faked, /api is the real back end
 
 # back-end/
-npm run dev      # nodemon on :8000
+npm run dev      # node --watch on :8000
 npm start
 npm test         # node:test API tests with in-memory fakes; no DB or secrets needed
 ```
