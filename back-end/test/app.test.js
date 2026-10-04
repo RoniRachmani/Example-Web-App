@@ -64,6 +64,48 @@ describe('articles API', () => {
     });
   });
 
+  describe('security headers', () => {
+    function assertSecurityHeaders(res) {
+      assert.match(res.headers.get('strict-transport-security'), /max-age=\d+/);
+      assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
+      assert.equal(res.headers.get('x-frame-options'), 'SAMEORIGIN');
+      assert.equal(res.headers.get('x-powered-by'), null);
+    }
+
+    it('are set on API responses', async () => {
+      assertSecurityHeaders(await request('GET', '/api/articles/learn-react'));
+    });
+
+    it('are set on error responses', async () => {
+      assertSecurityHeaders(await request('POST', '/api/articles/learn-react/upvote'));
+    });
+
+    it('are set when the rate limiter rejects a request', async () => {
+      stopServer();
+      await startServer({ rateLimits: { windowMs: 60_000, requests: 1, writes: 1 } });
+      await request('GET', '/api/articles/learn-react');
+
+      const res = await request('GET', '/api/articles/learn-react');
+      assert.equal(res.status, 429);
+      assertSecurityHeaders(res);
+    });
+
+    it('allow scripts only from this site and Google Analytics', async () => {
+      const res = await request('GET', '/api/articles/learn-react');
+      const policy = res.headers.get('content-security-policy');
+      assert.match(policy, /default-src 'self'/);
+      assert.match(policy, /script-src 'self' https:\/\/\*\.googletagmanager\.com(;|$)/);
+      assert.match(policy, /object-src 'none'/);
+    });
+
+    it('let the page reach Firebase Auth', async () => {
+      const res = await request('GET', '/api/articles/learn-react');
+      const connectSrc = res.headers.get('content-security-policy').match(/connect-src ([^;]+)/)[1].split(' ');
+      assert.ok(connectSrc.includes('https://identitytoolkit.googleapis.com'));
+      assert.ok(connectSrc.includes('https://securetoken.googleapis.com'));
+    });
+  });
+
   describe('auth', () => {
     it('returns 401 without a token', async () => {
       const res = await request('POST', '/api/articles/learn-react/upvote');

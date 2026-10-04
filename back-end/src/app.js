@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import helmet from 'helmet';
 import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 
 import { MAX_COMMENT_LENGTH, countChars, normalizeDisplayName } from './text.js';
@@ -30,10 +31,35 @@ function clientIp(req) {
   return req.get('x-appengine-user-ip') ?? req.ip;
 }
 
+// Everything the page loads comes from this server, except the Firebase SDK's
+// calls to Firebase Auth and Google Analytics. Add a host here when the front
+// end starts using another outside service, or the browser will block it.
+const CONTENT_SECURITY_POLICY = {
+  directives: {
+    scriptSrc: ["'self'", 'https://*.googletagmanager.com'],
+    connectSrc: [
+      "'self'",
+      'https://identitytoolkit.googleapis.com',
+      'https://securetoken.googleapis.com',
+      'https://firebaseinstallations.googleapis.com',
+      'https://firebase.googleapis.com',
+      'https://*.google-analytics.com',
+      'https://*.analytics.google.com',
+      'https://*.googletagmanager.com',
+    ],
+    imgSrc: ["'self'", 'data:', 'https://*.google-analytics.com', 'https://*.googletagmanager.com'],
+  },
+};
+
 // db is a connected MongoDB database, and verifyIdToken checks a Firebase ID token
 // and resolves to its decoded claims. They're passed in so tests can use fakes.
 export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS }) {
   const app = express();
+
+  // First, so every response gets the security headers, including a 429 from the
+  // rate limiter. Also removes X-Powered-By. The redirect from HTTP to HTTPS is
+  // App Engine's job (`secure: always` in app.yaml).
+  app.use(helmet({ contentSecurityPolicy: CONTENT_SECURITY_POLICY }));
 
   app.use(rateLimit({
     windowMs: rateLimits.windowMs,
