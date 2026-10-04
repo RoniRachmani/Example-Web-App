@@ -108,7 +108,7 @@ db.articles.insertMany([
 In two terminals:
 
 ```bash
-cd back-end && npm run dev    # API on http://localhost:8000 (restarts on change via nodemon)
+cd back-end && npm run dev    # API on http://localhost:8000 (restarts on change via node --watch)
 cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to the back end
 ```
 
@@ -122,7 +122,7 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `front-end` | `npm run preview` | Serve the production build locally |
 | `front-end` | `npm run test:e2e` | Build the app and run the browser tests in Chromium. Firebase is faked and the API is the real back end with an in-memory database, so no MongoDB or secrets are needed, but `back-end` must have its dependencies installed. Run `npx playwright install chromium` once first |
 | `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
-| `back-end`  | `npm run dev`     | Start the API with nodemon |
+| `back-end`  | `npm run dev`     | Start the API with `node --watch` |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |
 
 ## API
