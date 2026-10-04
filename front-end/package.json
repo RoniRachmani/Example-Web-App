@@ -32,7 +32,7 @@
     "vite": "^8.3.1"
   },
   "overrides": {
-    "@grpc/grpc-js": "1.9.16",
+    "@grpc/grpc-js": "1.14.5",
     "@protobufjs/utf8": "1.1.1",
     "follow-redirects": "1.16.0",
     "protobufjs": "^7.6.5",
