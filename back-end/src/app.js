@@ -59,7 +59,13 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS 
   // First, so every response gets the security headers, including a 429 from the
   // rate limiter. Also removes X-Powered-By. The redirect from HTTP to HTTPS is
   // App Engine's job (`secure: always` in app.yaml).
-  app.use(helmet({ contentSecurityPolicy: CONTENT_SECURITY_POLICY }));
+  app.use(helmet({
+    contentSecurityPolicy: CONTENT_SECURITY_POLICY,
+    // helmet's default sends no referrer at all. Firebase's API key can be limited
+    // to requests from this site, which Google checks by the referrer, so send the
+    // origin (never the path) to other sites.
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  }));
 
   app.use(rateLimit({
     windowMs: rateLimits.windowMs,

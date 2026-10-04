@@ -98,6 +98,11 @@ describe('articles API', () => {
       assert.match(policy, /object-src 'none'/);
     });
 
+    it('send only the origin as the referrer to other sites', async () => {
+      const res = await request('GET', '/api/articles/learn-react');
+      assert.equal(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+    });
+
     it('let the page reach Firebase Auth', async () => {
       const res = await request('GET', '/api/articles/learn-react');
       const connectSrc = res.headers.get('content-security-policy').match(/connect-src ([^;]+)/)[1].split(' ');
