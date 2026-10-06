@@ -31,6 +31,20 @@ test.describe('nav bar user item', () => {
     }
   });
 
+  test('lines the user item up with the links beside it', async ({ page, firebase }) => {
+    firebase.addAccount({ ...account, displayName: 'Alice Smith' });
+    await logIn(page, account);
+    await page.setViewportSize({ width: 1280, height: 720 });
+
+    const middle = async locator => {
+      const box = await locator.boundingBox();
+      return box.y + box.height / 2;
+    };
+    const user = await middle(page.locator('nav li.nav-user'));
+    const profile = await middle(page.locator('nav').getByRole('link', { name: 'Profile' }));
+    expect(Math.abs(user - profile)).toBeLessThanOrEqual(1);
+  });
+
   test('cuts a 50-character name with an ellipsis on a phone instead of overflowing', async ({ page, firebase }) => {
     firebase.addAccount({ ...account, displayName: 'Maximiliana Montgomery-Featherstonehaugh Wolfe III' });
     await logIn(page, account);
