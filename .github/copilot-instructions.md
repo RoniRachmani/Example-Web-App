@@ -29,6 +29,6 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 3. Return the right status codes: 401 for missing or invalid tokens, 404 for unknown articles, 400 for invalid input
 4. Add or update tests in `back-end/test/` for API changes, using the fakes passed to `createApp` rather than a real database
 5. Keep dependency changes minimal; Dependabot manages version bumps
-6. Target Node 22 (`.nvmrc`), matching App Engine and CI
+6. Target Node 24 (`.nvmrc`), matching App Engine and CI
 7. Keep the `overrides` in each `package.json`, which pin patched transitive dependencies
 8. Update `README.md` when you change setup steps, environment variables or API routes

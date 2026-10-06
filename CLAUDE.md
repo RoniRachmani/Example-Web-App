@@ -48,7 +48,7 @@ The Firebase *web* config in `front-end/src/main.jsx` is public by design and is
 
 - ES modules everywhere (`"type": "module"`), with 2-space indentation.
 - Match the existing style: function components, and `async/await` with Axios.
-- Node 22 is the target in CI and on App Engine (`runtime: nodejs22`). Keep `.nvmrc`, `app.yaml` and CI in sync.
+- Node 24 is the target in CI and on App Engine (`runtime: nodejs24`). Keep `.nvmrc`, `app.yaml` and CI in sync.
 - React lint rules come from `@eslint-react/eslint-plugin` plus `eslint-plugin-react-hooks`. Don't add `eslint-plugin-react` back: it doesn't support ESLint 10.
 - `back-end/src/text.js` and `front-end/src/text.js` (text limits and display-name clean-up) must stay identical. Edit one and copy it over; a back-end test fails if they differ.
 - The `overrides` blocks in both `package.json` files pin transitive dependencies to fix security advisories. Don't remove entries without checking `npm audit`.
