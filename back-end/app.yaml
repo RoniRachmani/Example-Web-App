@@ -1,6 +1,6 @@
 includes:
   - prod-env.yaml
-runtime: nodejs22
+runtime: nodejs24
 
 # Redirect HTTP to HTTPS. The app adds the HSTS header itself (helmet in src/app.js).
 handlers:
