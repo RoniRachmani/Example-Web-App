@@ -47,7 +47,9 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   ├── src/
 │   │   ├── app.js             # Routes, built by createApp({ db, verifyIdToken })
 │   │   ├── text.js            # Text limits and name clean-up, shared with the front end
+│   │   ├── db.js              # MongoDB connection (Atlas URI or MONGODB_URI)
 │   │   └── server.js          # Startup: reads secrets, connects to MongoDB, listens
+│   ├── scripts/               # One-off maintenance scripts (not deployed)
 │   ├── test/                  # API tests (node:test, in-memory fakes)
 │   └── app.yaml               # App Engine config
 ├── .claude/                   # Claude Code slash commands and SessionStart hook
@@ -92,7 +94,7 @@ env_variables:
 
 To use a different MongoDB, such as a local `mongod`, set `MONGODB_URI` (e.g. `MONGODB_URI=mongodb://localhost:27017`) instead of the username and password.
 
-The Atlas cluster host and database name (`full-stack-react-db`) are set in `back-end/src/server.js`, and the Firebase client config is in `front-end/src/firebase.js`. Change both if you point the app at your own projects.
+The Atlas cluster host and database name (`full-stack-react-db`) are set in `back-end/src/db.js`, and the Firebase client config is in `front-end/src/firebase.js`. Change both if you point the app at your own projects.
 
 ### 3. Seed the database
 
@@ -127,6 +129,7 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
 | `back-end`  | `npm run dev`     | Start the API with `node --watch` |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |
+| `back-end`  | `npm run anonymize-emails` | One-off clean-up: count the comments whose author is shown as an email address, which older versions saved for users without a display name. Add `-- --apply` to replace them with "Anonymous". Uses the same `.env` or `MONGODB_URI` as the server |
 
 ## API
 
