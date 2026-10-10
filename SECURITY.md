@@ -16,5 +16,5 @@ You should hear back within a week.
 
 ## Notes
 
-- The Firebase web config in `front-end/src/main.jsx` is public by design. Access is enforced by Firebase Authentication and by the back end verifying ID tokens.
+- The Firebase web config in `front-end/src/firebase.js` is public by design. Access is enforced by Firebase Authentication and by the back end verifying ID tokens.
 - Dependabot watches both npm packages and the GitHub Actions workflows for vulnerable or outdated dependencies.

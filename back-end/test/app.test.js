@@ -14,7 +14,6 @@ const users = {
   'long-name-token': { uid: 'dave', email: 'dave@example.com', name: 'D'.repeat(80) },
   'emoji-name-token': { uid: 'erin', email: 'erin@example.com', name: 'E'.repeat(49) + '😀😀' },
   'blank-name-token': { uid: 'frank', email: 'frank@example.com', name: '   ' },
-  'impostor-token': { uid: 'mallory', email: 'mallory@example.com', name: 'alice@example.com' },
   'invisible-name-token': { uid: 'gina', email: 'gina@example.com', name: '\u200B\u200B' },
   'reversed-name-token': { uid: 'hank', email: 'hank@example.com', name: '\u202Eknah' },
 };
@@ -64,6 +63,38 @@ describe('articles API', () => {
     it('returns 404 for an unknown article', async () => {
       const res = await request('GET', '/api/articles/nope');
       assert.equal(res.status, 404);
+    });
+
+    it("doesn't reveal who upvoted or commenters' uids", async () => {
+      db.docs[0]._id = 'abc123';
+      db.docs[0].upvotes = 1;
+      db.docs[0].upvoteIds = ['alice'];
+      db.docs[0].comments = [{ uid: 'carol', postedBy: 'Carol', text: 'hi' }];
+
+      const res = await request('GET', '/api/articles/learn-react');
+      assert.deepEqual(await res.json(), {
+        name: 'learn-react',
+        upvotes: 1,
+        upvoted: false,
+        comments: [{ postedBy: 'Carol', text: 'hi' }],
+      });
+    });
+
+    it('says whether the signed-in user has upvoted', async () => {
+      db.docs[0].upvoteIds = ['alice'];
+
+      const alice = await request('GET', '/api/articles/learn-react', { token: 'alice-token' });
+      const bob = await request('GET', '/api/articles/learn-react', { token: 'bob-token' });
+      assert.equal((await alice.json()).upvoted, true);
+      assert.equal((await bob.json()).upvoted, false);
+    });
+
+    it('treats an invalid token as a signed-out visitor', async () => {
+      db.docs[0].upvoteIds = ['alice'];
+
+      const res = await request('GET', '/api/articles/learn-react', { token: 'garbage' });
+      assert.equal(res.status, 200);
+      assert.equal((await res.json()).upvoted, false);
     });
   });
 
@@ -191,7 +222,10 @@ describe('articles API', () => {
     it('counts an upvote', async () => {
       const res = await request('POST', '/api/articles/learn-react/upvote', { token: 'alice-token' });
       assert.equal(res.status, 200);
-      assert.equal((await res.json()).upvotes, 1);
+      const body = await res.json();
+      assert.equal(body.upvotes, 1);
+      assert.equal(body.upvoted, true);
+      assert.equal(body.upvoteIds, undefined);
       assert.deepEqual(db.docs[0].upvoteIds, ['alice']);
     });
 
@@ -229,16 +263,23 @@ describe('articles API', () => {
         body: { postedBy: 'bob@example.com', text: '  Nice article  ' },
       });
       assert.equal(res.status, 200);
-      assert.deepEqual((await res.json()).comments, [{ uid: 'alice', postedBy: 'alice@example.com', text: 'Nice article' }]);
+      assert.deepEqual(db.docs[0].comments, [{ uid: 'alice', postedBy: 'Anonymous', text: 'Nice article' }]);
+      assert.deepEqual((await res.json()).comments, [{ postedBy: 'Anonymous', text: 'Nice article' }]);
     });
 
-    it("keeps the author's uid, so a copied display name can be told apart", async () => {
-      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'real' } });
-      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'impostor-token', body: { text: 'fake' } });
-      const [real, fake] = (await res.json()).comments;
-      assert.equal(real.postedBy, fake.postedBy);
-      assert.equal(real.uid, 'alice');
-      assert.equal(fake.uid, 'mallory');
+    it("stores the author's uid, so a copied display name can be told apart", async () => {
+      await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'one' } });
+      await request('POST', '/api/articles/learn-react/comments', { token: 'blank-name-token', body: { text: 'two' } });
+      const [first, second] = db.docs[0].comments;
+      assert.equal(first.postedBy, second.postedBy);
+      assert.equal(first.uid, 'alice');
+      assert.equal(second.uid, 'frank');
+    });
+
+    it('never publishes the email address of a user without a display name', async () => {
+      const res = await request('POST', '/api/articles/learn-react/comments', { token: 'alice-token', body: { text: 'hi' } });
+      assert.doesNotMatch(await res.text(), /alice@example\.com/);
+      assert.doesNotMatch(JSON.stringify(db.docs), /alice@example\.com/);
     });
 
     it('uses the display name from the token, trimmed', async () => {
@@ -257,14 +298,14 @@ describe('articles API', () => {
       assert.equal((await res.json()).comments[0].postedBy, 'E'.repeat(49) + '😀');
     });
 
-    it('falls back to the email when the display name is blank', async () => {
+    it('shows Anonymous when the display name is blank', async () => {
       const res = await request('POST', '/api/articles/learn-react/comments', { token: 'blank-name-token', body: { text: 'hi' } });
-      assert.equal((await res.json()).comments[0].postedBy, 'frank@example.com');
+      assert.equal((await res.json()).comments[0].postedBy, 'Anonymous');
     });
 
-    it('falls back to the email when the display name is only invisible characters', async () => {
+    it('shows Anonymous when the display name is only invisible characters', async () => {
       const res = await request('POST', '/api/articles/learn-react/comments', { token: 'invisible-name-token', body: { text: 'hi' } });
-      assert.equal((await res.json()).comments[0].postedBy, 'gina@example.com');
+      assert.equal((await res.json()).comments[0].postedBy, 'Anonymous');
     });
 
     it('strips bidi overrides from the display name', async () => {

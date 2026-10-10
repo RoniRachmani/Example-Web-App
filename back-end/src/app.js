@@ -9,10 +9,26 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Shown as the author of a comment when the user has no usable display name, so
+// the email address in their token is never published.
+export const ANONYMOUS_NAME = 'Anonymous';
+
 // The name claim is set by the user, so the front end's checks can be
 // bypassed. Truncate rather than reject so a long name can't block commenting.
 function getDisplayName(user) {
   return typeof user.name === 'string' ? normalizeDisplayName(user.name) : '';
+}
+
+// What the API sends about an article: only what the page shows, plus whether the
+// signed-in user (if any) has upvoted it. Who upvoted and each commenter's uid stay
+// in the database.
+function publicArticle({ name, upvotes = 0, upvoteIds = [], comments = [] }, uid) {
+  return {
+    name,
+    upvotes,
+    upvoted: Boolean(uid) && upvoteIds.includes(uid),
+    comments: comments.map(({ postedBy, text }) => ({ postedBy, text })),
+  };
 }
 
 // Per window: `requests` is for any route, per client IP (a page load is a handful
@@ -121,12 +137,19 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
     unhashedFiles(req, res, () => res.sendStatus(404));
   });
 
+  // Public, but a signed-in visitor sends their token so the page knows whether
+  // they've upvoted. A bad token isn't an error here: the article is sent as to
+  // a signed-out visitor.
   app.get('/api/articles/:name', async (req, res) => {
     const { name } = req.params;
-    const article = await db.collection('articles').findOne({ name });
+    const { authtoken } = req.headers;
+    const [article, user] = await Promise.all([
+      db.collection('articles').findOne({ name }),
+      authtoken ? verifyIdToken(authtoken).catch(() => null) : null,
+    ]);
 
     if (article) {
-      res.json(article);
+      res.json(publicArticle(article, user?.uid));
     } else {
       res.sendStatus(404);
     }
@@ -162,7 +185,7 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
     });
 
     if (updatedArticle) {
-      res.json(updatedArticle);
+      res.json(publicArticle(updatedArticle, uid));
     } else if (await db.collection('articles').findOne({ name })) {
       res.sendStatus(403);
     } else {
@@ -180,7 +203,7 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
       return res.sendStatus(400);
     }
 
-    const postedBy = getDisplayName(req.user) || req.user.email;
+    const postedBy = getDisplayName(req.user) || ANONYMOUS_NAME;
     // Display names aren't unique and anyone can pick any name, so keep the author's
     // uid too: it's what tells two commenters with the same name apart.
     const newComment = { uid: req.user.uid, postedBy, text: trimmedText };
@@ -192,7 +215,7 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
     });
 
     if (updatedArticle) {
-      res.json(updatedArticle);
+      res.json(publicArticle(updatedArticle, req.user.uid));
     } else {
       res.sendStatus(404);
     }

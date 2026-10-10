@@ -22,4 +22,5 @@ node_modules/
 *.log
 .DS_Store
 test/
+scripts/
 src/testConnection.js
