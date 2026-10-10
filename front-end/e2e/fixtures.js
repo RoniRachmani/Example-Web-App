@@ -238,18 +238,18 @@ export { expect };
 
 export async function logIn(page, { email, password }) {
   await page.goto('/login');
-  await page.getByPlaceholder('Your email address').fill(email);
-  await page.getByPlaceholder('Your password').fill(password);
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Log In' }).click();
   await expect(page.getByRole('button', { name: 'Sign Out' })).toBeVisible();
 }
 
 export async function fillSignUpForm(page, { displayName, email = 'bob@example.com', password = 'secret123', confirmPassword = password }) {
   await page.goto('/create-account');
-  await page.getByPlaceholder('Display name').fill(displayName);
-  await page.getByPlaceholder('Your email address').fill(email);
-  await page.getByPlaceholder('Your password').fill(password);
-  await page.getByPlaceholder('Confirm password').fill(confirmPassword);
+  await page.getByLabel('Display name').fill(displayName);
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByLabel('Confirm password').fill(confirmPassword);
 }
 
 export async function postComment(page, article, text) {

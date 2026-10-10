@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useUser from '../useUser';
 import { saveDisplayName, validateDisplayName } from '../displayName';
+import { authErrorMessage } from '../errorMessages';
 
 export default function ProfilePage() {
   const { isLoading, user } = useUser();
@@ -13,6 +14,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <>
+      <title>Profile | Blogify</title>
       <h1>Profile</h1>
       <p><Link to='/login'>Log in</Link> to edit your profile.</p>
       </>
@@ -31,7 +33,8 @@ function ProfileForm({ user }) {
   const [message, setMessage] = useState(location.state?.message || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  async function save() {
+  async function save(e) {
+    e.preventDefault();
     const [name, nameError] = validateDisplayName(displayName);
 
     if (nameError) {
@@ -44,8 +47,8 @@ function ProfileForm({ user }) {
       await saveDisplayName(user, name);
       setDisplayName(name);
       setMessage('Display name saved.');
-    } catch (e) {
-      setMessage(e.message);
+    } catch (err) {
+      setMessage(authErrorMessage(err));
     } finally {
       setIsSaving(false);
     }
@@ -53,16 +56,20 @@ function ProfileForm({ user }) {
 
   return (
     <>
+    <title>Profile | Blogify</title>
     <h1>Profile</h1>
     <p>Signed in as {user.email}</p>
-    {message && <p>{message}</p>}
-    <label>
-      Display name (shown on your comments):
-      <input
-        value={displayName}
-        onChange={e => setDisplayName(e.target.value)} />
-    </label>
-    <button disabled={isSaving} onClick={save}>Save</button>
+    <form className='auth-form' onSubmit={save}>
+      {message && <p role='status'>{message}</p>}
+      <label>
+        Display name (shown on your comments)
+        <input
+          autoComplete='nickname'
+          value={displayName}
+          onChange={e => setDisplayName(e.target.value)} />
+      </label>
+      <button type='submit' disabled={isSaving}>Save</button>
+    </form>
     </>
   );
 }

@@ -107,16 +107,107 @@ nav a:hover {
   background-color: #555;
 }
 
-a h3 {
-  color: #333;
+a:hover {
+  text-decoration: underline;
+}
+
+/* Article previews: the title in the page's text colour and the summary muted,
+   readable on both the dark and the light background. */
+a.article-link {
+  display: block;
+}
+
+a.article-link h3 {
+  color: rgba(255, 255, 255, 0.87);
   margin-bottom: 0.5em;
 }
 
-a p {
-  color: #666;
+a.article-link p {
+  color: #b0b0b0;
   font-size: 0.9em;
 }
 
-a:hover {
+@media (prefers-color-scheme: light) {
+  a.article-link h3 {
+    color: #333;
+  }
+
+  a.article-link p {
+    color: #595959;
+  }
+}
+
+/* Forms: one field per line, label above its input */
+form.auth-form,
+form.comment-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75em;
+  max-width: 400px;
+}
+
+form.comment-form {
+  max-width: none;
+}
+
+form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  width: 100%;
+}
+
+input,
+textarea {
+  font: inherit;
+  padding: 0.4em 0.6em;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Keep line breaks, and wrap a long unbroken word instead of overflowing */
+.comment p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.consent-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-bottom: 1em;
+  padding: 0.75em 1em;
+  border: 1px solid #646cff;
+  border-radius: 8px;
+}
+
+.consent-banner p {
+  margin: 0;
+  flex: 1 1 250px;
+}
+
+footer {
+  margin-top: 3em;
+  padding-top: 1em;
+  border-top: 1px solid #555;
+  font-size: 0.9em;
+}
+
+/* A button that looks like a link */
+button.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #646cff;
+  font-weight: 500;
+}
+
+button.link-button:hover {
   text-decoration: underline;
 }

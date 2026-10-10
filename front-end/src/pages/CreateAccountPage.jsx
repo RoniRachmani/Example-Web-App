@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { saveDisplayName, validateDisplayName } from '../displayName';
+import { authErrorMessage } from '../errorMessages';
 
 export default function CreateAccountPage() {
   const [displayName, setDisplayName] = useState('');
@@ -9,10 +10,12 @@ export default function CreateAccountPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
-  async function createAccount() {
+  async function createAccount(e) {
+    e.preventDefault();
     const [name, nameError] = validateDisplayName(displayName);
 
     if (nameError) {
@@ -25,11 +28,16 @@ export default function CreateAccountPage() {
       return;
     }
 
+    // Stays disabled from here on unless sign-up fails, so a second click can't
+    // try to create the same account again.
+    setIsSubmitting(true);
+
     let user;
     try {
       ({ user } = await createUserWithEmailAndPassword(getAuth(), email, password));
-    } catch (e) {
-      setError(e.message);
+    } catch (err) {
+      setError(authErrorMessage(err));
+      setIsSubmitting(false);
       return;
     }
 
@@ -47,28 +55,44 @@ export default function CreateAccountPage() {
 
   return (
     <>
+    <title>Create Account | Blogify</title>
     <h1>Create Account</h1>
-    {error && <p>{error}</p>}
-    <input
-      placeholder='Display name (shown on your comments)'
-      value={displayName}
-      onChange={e => setDisplayName(e.target.value)} />
-    <input
-      placeholder='Your email address'
-      value={email}
-      onChange={e => setEmail(e.target.value)} />
-    <input
-      placeholder='Your password'
-      type='password'
-      value={password}
-      onChange={e => setPassword(e.target.value)} />
-    <input
-      placeholder='Confirm password'
-      type='password'
-      value={confirmPassword}
-      onChange={e => setConfirmPassword(e.target.value)} />
-    <button onClick={createAccount}>Create Account</button>
-    <Link to='/login'>Already have an account? Log In</Link>
+    <form className='auth-form' onSubmit={createAccount}>
+      {error && <p role='alert'>{error}</p>}
+      <label>
+        Display name (shown on your comments)
+        <input
+          autoComplete='nickname'
+          value={displayName}
+          onChange={e => setDisplayName(e.target.value)} />
+      </label>
+      <label>
+        Email
+        <input
+          type='email'
+          autoComplete='email'
+          value={email}
+          onChange={e => setEmail(e.target.value)} />
+      </label>
+      <label>
+        Password
+        <input
+          type='password'
+          autoComplete='new-password'
+          value={password}
+          onChange={e => setPassword(e.target.value)} />
+      </label>
+      <label>
+        Confirm password
+        <input
+          type='password'
+          autoComplete='new-password'
+          value={confirmPassword}
+          onChange={e => setConfirmPassword(e.target.value)} />
+      </label>
+      <button type='submit' disabled={isSubmitting}>Create Account</button>
+    </form>
+    <p><Link to='/login'>Already have an account? Log In</Link></p>
     </>
   );
 }

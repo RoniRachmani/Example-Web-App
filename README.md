@@ -14,7 +14,8 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 - Public pages: Home, About, Articles list and individual articles
 - Accounts: sign in, create an account and sign out with Firebase Authentication (email and password)
 - A display name, set when creating an account and changeable on the Profile page
-- Signed-in users can upvote an article (once per user) and add comments. A comment shows its author's display name, or their email address if they haven't set one.
+- Signed-in users can upvote an article (once per user) and add comments. A comment shows its author's display name, or "Anonymous" if they haven't set one; email addresses are never shown.
+- Google Analytics loads only after a visitor accepts it in the cookie banner, and the footer's "Cookie settings" lets them change their mind
 
 ## Tech stack
 
@@ -37,7 +38,9 @@ A full-stack blog built with React and Vite on the front end, Node.js and Expres
 │   │   ├── useUser.js         # Hook exposing the current Firebase user
 │   │   ├── displayName.js     # Display name validation and save helper
 │   │   ├── text.js            # Text limits and name clean-up (copy of back-end/src/text.js)
-│   │   └── main.jsx           # Entry point and Firebase client config
+│   │   ├── firebase.js        # Firebase client config
+│   │   ├── analytics.js       # Analytics consent: Analytics loads only once accepted
+│   │   └── main.jsx           # Entry point
 │   ├── e2e/                   # Browser tests (Playwright; Firebase faked, /api is the real back end)
 │   └── vite.config.js         # Dev server proxies /api to localhost:8000
 ├── back-end/                  # Express API that also serves the built front end
@@ -89,7 +92,7 @@ env_variables:
 
 To use a different MongoDB, such as a local `mongod`, set `MONGODB_URI` (e.g. `MONGODB_URI=mongodb://localhost:27017`) instead of the username and password.
 
-The Atlas cluster host and database name (`full-stack-react-db`) are set in `back-end/src/server.js`, and the Firebase client config is in `front-end/src/main.jsx`. Change both if you point the app at your own projects.
+The Atlas cluster host and database name (`full-stack-react-db`) are set in `back-end/src/server.js`, and the Firebase client config is in `front-end/src/firebase.js`. Change both if you point the app at your own projects.
 
 ### 3. Seed the database
 
@@ -133,9 +136,9 @@ Requests are rate limited and return `429` over the limit: 1000 requests per cli
 
 | Method | Path | Auth | Description |
 | ------ | ---- | ---- | ----------- |
-| `GET`  | `/api/articles/:name` | No | Get an article's upvotes and comments |
+| `GET`  | `/api/articles/:name` | No | Get an article as `{ name, upvotes, upvoted, comments }`, each comment as `{ postedBy, text }`. Send a token (optional) to have `upvoted` say whether that user has upvoted; without one, or with an invalid one, it's `false`. Who upvoted and commenters' `uid`s are never sent. The two `POST` routes return the same shape |
 | `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
-| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name, or their email if they have no name or it has nothing visible in it. Names have control and bidi-override characters removed and are cut to 50 characters without splitting an emoji. Limits count Unicode code points, so an emoji is one character. Each comment also stores the author's `uid`, since display names aren't unique |
+| `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name, or `Anonymous` if they have no name or it has nothing visible in it (never their email). Names have control and bidi-override characters removed and are cut to 50 characters without splitting an emoji. Limits count Unicode code points, so an emoji is one character. Each comment also stores the author's `uid`, since display names aren't unique |
 
 Any other non-`/api` path returns the front end's `index.html`, so client-side routes work on refresh.
 

@@ -1,23 +1,14 @@
+// First, so the Firebase app exists before anything uses it: App.jsx creates the
+// router when it loads, which starts the first page's loader straight away.
+import './firebase.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
+import { applyConsent } from './analytics.js'
 import './index.css'
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBOvRp1nW0P7L6-A5gdGZtOoZxVQyfX_aU",
-  authDomain: "full-stack-react-493e2.firebaseapp.com",
-  projectId: "full-stack-react-493e2",
-  storageBucket: "full-stack-react-493e2.firebasestorage.app",
-  messagingSenderId: "899179658141",
-  appId: "1:899179658141:web:f2c9005f4ce13eaa1e8d74",
-  measurementId: "G-4WEWF7PCTH"
-};
-
-const app = initializeApp(firebaseConfig);
-getAnalytics(app);
+// Starts Analytics only if the visitor already agreed on an earlier visit
+applyConsent();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
