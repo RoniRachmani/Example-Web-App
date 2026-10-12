@@ -14,13 +14,13 @@ export default function AboutPage() {
     <p>
       Blogify practises what it preaches. The site is a React app, served by a
       Node.js and Express server that stores upvotes and comments in MongoDB.
-      Sign-in is handled by Firebase Authentication, and the whole thing runs on
+      Login is handled by Firebase Authentication, and the whole thing runs on
       Google App Engine.
     </p>
     <h2>Joining in</h2>
     <p>
-      Anyone can read the <Link to='/articles'>articles</Link>. With a free account
-      you can upvote the ones you like and leave comments. Your display name is
+      Anyone can read the <Link to='/articles'>articles</Link>. With a{' '}
+      <Link to='/create-account'>free account</Link> you can upvote the ones you like and leave comments. Your display name is
       shown on your comments. Please keep comments
       friendly and on topic.
     </p>

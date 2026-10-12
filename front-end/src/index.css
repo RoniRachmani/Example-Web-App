@@ -7,6 +7,14 @@
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
+  /* Links and errors, each at least 4.5:1 against the page background.
+     The light-mode values are set further down. */
+  --link: #8f95ff;
+  --link-hover: #a9aeff;
+  --error: #ff8a80;
+  --muted: #b0b0b0;
+  --page: #242424;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,12 +23,35 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--link);
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #535bf2;
+  color: var(--link-hover);
+}
+
+/* Links inside running text are underlined, so colour isn't the only cue */
+main p a {
+  text-decoration: underline;
+}
+
+/* Hidden until it gets keyboard focus; jumps past the nav bar */
+a.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+
+a.skip-link:focus {
+  position: static;
+  display: inline-block;
+  margin-bottom: 0.5em;
+  padding: 0.5em 1em;
+  text-decoration: underline;
+}
+
+main:focus {
+  outline: none;
 }
 
 body {
@@ -32,6 +63,7 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  overflow-wrap: break-word;
 }
 
 button {
@@ -57,9 +89,11 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
+    --link: #4a50d9;
+    --link-hover: #3138b3;
+    --error: #b3261e;
+    --muted: #595959;
+    --page: #ffffff;
   }
   button {
     background-color: #f9f9f9;
@@ -68,7 +102,7 @@ button:focus-visible {
 
 nav {
   background-color: #333;
-  padding: 10px;
+  padding: 6px 10px;
   text-align: center;
 }
 
@@ -94,17 +128,27 @@ nav li.nav-user {
   text-overflow: ellipsis;
 }
 
+/* Tall enough to tap comfortably on a phone */
 nav a {
+  display: inline-block;
   color: white;
   text-decoration: none;
   font-weight: bold;
-  padding: 5px 10px;
+  padding: 10px;
   border-radius: 3px;
   transition: background-color 0.3s;
 }
 
 nav a:hover {
+  color: white;
   background-color: #555;
+}
+
+/* The page you're on */
+nav a[aria-current='page'] {
+  background-color: #555;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
 }
 
 a:hover {
@@ -123,17 +167,21 @@ a.article-link h3 {
 }
 
 a.article-link p {
-  color: #b0b0b0;
+  color: var(--muted);
   font-size: 0.9em;
+  text-decoration: none;
+}
+
+/* Reading time and counts under a preview or an article's title */
+a.article-link p.article-details,
+p.article-details {
+  color: var(--muted);
+  font-size: 0.85em;
 }
 
 @media (prefers-color-scheme: light) {
   a.article-link h3 {
     color: #333;
-  }
-
-  a.article-link p {
-    color: #595959;
   }
 }
 
@@ -158,6 +206,38 @@ form label {
   width: 100%;
 }
 
+/* A label and input with the hint and error for it underneath */
+.field {
+  width: 100%;
+}
+
+.field-hint,
+.field-error {
+  margin: 0.25em 0 0;
+  font-size: 0.9em;
+}
+
+.field-hint {
+  color: var(--muted);
+}
+
+.field-error,
+.form-error {
+  color: var(--error);
+  font-weight: 500;
+}
+
+.form-error {
+  margin: 0;
+  padding-left: 0.75em;
+  border-left: 3px solid var(--error);
+}
+
+input[aria-invalid='true'] {
+  border: 2px solid var(--error);
+  border-radius: 3px;
+}
+
 input,
 textarea {
   font: inherit;
@@ -170,21 +250,55 @@ textarea {
   resize: vertical;
 }
 
+/* One comment per block, with the name standing out from the text */
+.comment {
+  padding: 0.75em 0;
+  border-top: 1px solid #555;
+}
+
+.comment h4 {
+  margin: 0;
+  font-size: 1.05em;
+}
+
+.comment p {
+  margin: 0.25em 0 0;
+}
+
+.comment time {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
 /* Keep line breaks, and wrap a long unbroken word instead of overflowing */
 .comment p {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
+/* Fixed to the bottom of the window, so the page doesn't jump when it closes */
 .consent-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(800px, 100% - 2rem);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5em 1em;
-  margin-bottom: 1em;
   padding: 0.75em 1em;
-  border: 1px solid #646cff;
+  border: 1px solid var(--link);
   border-radius: 8px;
+  background-color: var(--page);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Room to scroll the footer clear of the banner */
+#root:has(.consent-banner) {
+  padding-bottom: 10rem;
 }
 
 .consent-banner p {
@@ -203,11 +317,30 @@ footer {
 button.link-button {
   background: none;
   border: none;
-  padding: 0;
-  color: #646cff;
+  /* Vertical padding only, to make it easier to tap */
+  padding: 0.5em 0;
+  color: var(--link);
   font-weight: 500;
 }
 
 button.link-button:hover {
   text-decoration: underline;
+}
+/* Phones: give the text the width, and keep the nav links on one row */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.2em;
+  }
+
+  nav {
+    padding: 4px;
+  }
+
+  nav li {
+    margin: 0 2px;
+  }
+
+  nav li.nav-user {
+    max-width: calc(100% - 4px);
+  }
 }

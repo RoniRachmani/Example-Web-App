@@ -24,7 +24,7 @@ export function authErrorMessage(error) {
 export function apiErrorMessage(error, failed) {
   switch (error?.response?.status) {
     case 401:
-      return `${failed} Your sign-in has expired, so please log in again.`;
+      return `${failed} Your login has expired, so please log in again.`;
     case 429:
       return `${failed} You're doing that too often, so please wait a few minutes.`;
     default:

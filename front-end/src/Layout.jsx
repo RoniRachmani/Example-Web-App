@@ -3,13 +3,15 @@ import NavBar from './NavBar';
 import ConsentBanner from './ConsentBanner';
 import { setConsent } from './analytics';
 
-export default function Layout() {
+// Renders the matched route, or `children` when used as the router's errorElement.
+export default function Layout({ children }) {
   return (
     <>
+    <a className='skip-link' href='#main'>Skip to content</a>
     <ConsentBanner />
     <NavBar />
-    <main>
-      <Outlet />
+    <main id='main' tabIndex={-1}>
+      {children ?? <Outlet />}
     </main>
     <footer>
       <button className='link-button' onClick={() => setConsent(null)}>Cookie settings</button>

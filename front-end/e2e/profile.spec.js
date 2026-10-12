@@ -16,7 +16,7 @@ test.describe('profile page', () => {
     await expect(page.locator('nav')).toContainText('Logged in as alice@example.com');
 
     await page.locator('nav').getByRole('link', { name: 'Profile' }).click();
-    await expect(page.getByText('Signed in as alice@example.com')).toBeVisible();
+    await expect(page.locator('main').getByText('Logged in as alice@example.com')).toBeVisible();
 
     // Survives only as long as the page isn't reloaded.
     await page.evaluate(() => { window.notReloaded = true; });
@@ -33,8 +33,8 @@ test.describe('profile page', () => {
     await page.reload();
     await expect(page.locator('nav')).toContainText('Logged in as Alice Smith');
 
-    await page.getByRole('button', { name: 'Sign Out' }).click();
-    await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
+    await page.getByRole('button', { name: 'Log Out' }).click();
+    await expect(page.locator('nav').getByRole('link', { name: 'Log In' })).toBeVisible();
     await expect(page.locator('nav')).not.toContainText('Logged in as');
   });
 

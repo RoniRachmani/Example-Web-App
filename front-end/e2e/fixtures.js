@@ -112,6 +112,10 @@ function createFakeFirebase() {
           ...(firebase.profileUpdateReturnsToken ? tokens(account) : {}),
         } };
       }
+      // Password reset email. Like Firebase, it answers the same way whether or
+      // not the account exists.
+      case 'accounts:sendOobCode':
+        return { status: 200, body: { kind: 'identitytoolkit#GetOobConfirmationCodeResponse', email: body.email } };
       case 'token': {
         const account = byUid(String(body.refresh_token).replace(/^refresh-/, ''));
         if (!account) return error('INVALID_REFRESH_TOKEN');
@@ -241,7 +245,7 @@ export async function logIn(page, { email, password }) {
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Log In' }).click();
-  await expect(page.getByRole('button', { name: 'Sign Out' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible();
 }
 
 export async function fillSignUpForm(page, { displayName, email = 'bob@example.com', password = 'secret123', confirmPassword = password }) {

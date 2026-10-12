@@ -16,6 +16,14 @@ test.describe('comment form', () => {
     await expect(page.getByLabel('Comment')).toHaveCount(0);
   });
 
+  test('shows a comment saved without a date, with no date', async ({ page, api }) => {
+    api.db.docs[0].comments = [{ uid: 'u1', postedBy: 'Alice', text: 'An old comment' }];
+    await page.goto('/articles/learn-react');
+
+    await expect(page.getByText('An old comment')).toBeVisible();
+    await expect(page.locator('.comment time')).toHaveCount(0);
+  });
+
   test('keeps the button disabled for an empty or whitespace-only comment', async ({ page, firebase }) => {
     await openArticleSignedIn(page, firebase);
     const button = page.getByRole('button', { name: 'Add Comment' });
@@ -64,6 +72,8 @@ test.describe('comment form', () => {
 
     await expect(page.getByRole('heading', { name: 'Alice' })).toBeVisible();
     await expect(page.getByText('Great article!')).toBeVisible();
+    const today = await page.evaluate(() => new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }));
+    await expect(page.locator('.comment time')).toHaveText(today);
     await expect(page.getByText('No comments yet.')).toHaveCount(0);
     await expect(page.getByLabel('Comment')).toHaveValue('');
     await expect(page.getByRole('button', { name: 'Add Comment' })).toBeDisabled();
@@ -88,6 +98,9 @@ test.describe('comment form', () => {
       await page.getByLabel('Comment').fill('Great article!');
       await page.getByRole('button', { name: 'Add Comment' }).click();
       await expect(page.getByText('Great article!')).toHaveCount(count);
+      // The form clears just after the comment appears. Wait for that, or the
+      // next fill can land first and be wiped.
+      await expect(page.getByLabel('Comment')).toHaveValue('');
     }
 
     await page.reload();

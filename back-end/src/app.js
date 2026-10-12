@@ -27,7 +27,8 @@ function publicArticle({ name, upvotes = 0, upvoteIds = [], comments = [] }, uid
     name,
     upvotes,
     upvoted: Boolean(uid) && upvoteIds.includes(uid),
-    comments: comments.map(({ postedBy, text }) => ({ postedBy, text })),
+    // Comments from before postedAt was stored don't have one.
+    comments: comments.map(({ postedBy, text, postedAt }) => ({ postedBy, text, postedAt })),
   };
 }
 
@@ -137,6 +138,16 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
     unhashedFiles(req, res, () => res.sendStatus(404));
   });
 
+  // The counts shown beside each article in a list. Nothing else about the
+  // articles is sent: no comment text, authors or who upvoted.
+  app.get('/api/articles', async (req, res) => {
+    const articles = await db.collection('articles')
+      .find({}, { projection: { name: 1, upvotes: 1, comments: 1 } })
+      .toArray();
+
+    res.json(articles.map(({ name, upvotes = 0, comments = [] }) => ({ name, upvotes, comments: comments.length })));
+  });
+
   // Public, but a signed-in visitor sends their token so the page knows whether
   // they've upvoted. A bad token isn't an error here: the article is sent as to
   // a signed-out visitor.
@@ -206,7 +217,7 @@ export function createApp({ db, verifyIdToken, rateLimits = DEFAULT_RATE_LIMITS,
     const postedBy = getDisplayName(req.user) || ANONYMOUS_NAME;
     // Display names aren't unique and anyone can pick any name, so keep the author's
     // uid too: it's what tells two commenters with the same name apart.
-    const newComment = { uid: req.user.uid, postedBy, text: trimmedText };
+    const newComment = { uid: req.user.uid, postedBy, text: trimmedText, postedAt: new Date() };
 
     const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
       $push: { comments: newComment }

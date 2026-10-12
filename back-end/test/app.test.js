@@ -53,6 +53,24 @@ describe('articles API', () => {
     return fetch(baseUrl + path, { method, headers, body: body && JSON.stringify(body) });
   }
 
+  describe('GET /api/articles', () => {
+    it('returns the upvote and comment counts of every article, and nothing else', async () => {
+      db.docs[0]._id = 'abc123';
+      db.docs[0].upvotes = 2;
+      db.docs[0].upvoteIds = ['alice', 'bob'];
+      db.docs[0].comments = [{ uid: 'carol', postedBy: 'Carol', text: 'hi' }];
+      // No upvotes or comments fields yet, like a newly added article
+      db.docs.push({ name: 'learn-node' });
+
+      const res = await request('GET', '/api/articles');
+      assert.equal(res.status, 200);
+      assert.deepEqual(await res.json(), [
+        { name: 'learn-react', upvotes: 2, comments: 1 },
+        { name: 'learn-node', upvotes: 0, comments: 0 },
+      ]);
+    });
+  });
+
   describe('GET /api/articles/:name', () => {
     it('returns the article', async () => {
       const res = await request('GET', '/api/articles/learn-react');
@@ -263,8 +281,23 @@ describe('articles API', () => {
         body: { postedBy: 'bob@example.com', text: '  Nice article  ' },
       });
       assert.equal(res.status, 200);
-      assert.deepEqual(db.docs[0].comments, [{ uid: 'alice', postedBy: 'Anonymous', text: 'Nice article' }]);
-      assert.deepEqual((await res.json()).comments, [{ postedBy: 'Anonymous', text: 'Nice article' }]);
+      const [{ postedAt, ...saved }] = db.docs[0].comments;
+      assert.deepEqual(saved, { uid: 'alice', postedBy: 'Anonymous', text: 'Nice article' });
+      assert.deepEqual((await res.json()).comments, [{ postedBy: 'Anonymous', text: 'Nice article', postedAt: postedAt.toISOString() }]);
+    });
+
+    it('records when the comment was posted, ignoring postedAt in the body', async () => {
+      const before = Date.now();
+      const res = await request('POST', '/api/articles/learn-react/comments', {
+        token: 'alice-token',
+        body: { text: 'hi', postedAt: '2001-01-01T00:00:00.000Z' },
+      });
+      const after = Date.now();
+
+      const { postedAt } = db.docs[0].comments[0];
+      assert.ok(postedAt instanceof Date);
+      assert.ok(postedAt.getTime() >= before && postedAt.getTime() <= after);
+      assert.equal((await res.json()).comments[0].postedAt, postedAt.toISOString());
     });
 
     it("stores the author's uid, so a copied display name can be told apart", async () => {

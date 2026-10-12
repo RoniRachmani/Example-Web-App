@@ -22,7 +22,7 @@ test.describe('sign-up display name', () => {
     await fillSignUpForm(page, { displayName: 'Bob', confirmPassword: 'different' });
     await page.getByRole('button', { name: 'Create Account' }).click();
 
-    await expect(page.getByText('Password and Confirm Password do not match!')).toBeVisible();
+    await expect(page.getByText("The passwords don't match.")).toBeVisible();
     expect(firebase.calls).not.toContain('accounts:signUp');
   });
 

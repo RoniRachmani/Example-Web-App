@@ -44,6 +44,17 @@ test.describe('analytics consent', () => {
     expect(requests).toEqual([]);
   });
 
+  test("doesn't move the page when the banner closes", async ({ page }) => {
+    await page.goto('/');
+    const navTop = async () => (await page.locator('nav').boundingBox()).y;
+    const before = await navTop();
+
+    await page.getByRole('button', { name: 'Decline' }).click();
+    await expect(page.getByRole('complementary', { name: 'Cookie consent' })).toHaveCount(0);
+
+    expect(await navTop()).toBe(before);
+  });
+
   test('lets the visitor change their mind from the footer', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Decline' }).click();

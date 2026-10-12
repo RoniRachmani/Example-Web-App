@@ -3,3 +3,9 @@
   margin: 0 auto;
   padding: 2rem;
 }
+
+@media (max-width: 600px) {
+  #root {
+    padding: 1rem;
+  }
+}

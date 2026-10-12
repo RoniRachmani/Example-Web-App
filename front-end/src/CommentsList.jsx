@@ -1,3 +1,5 @@
+const DATE_FORMAT = { year: 'numeric', month: 'short', day: 'numeric' };
+
 export default function CommentsList({ comments }) {
   return (
     <>
@@ -9,6 +11,12 @@ export default function CommentsList({ comments }) {
       // eslint-disable-next-line @eslint-react/no-array-index-key
       <div className='comment' key={index}>
         <h4>{comment.postedBy}</h4>
+        {/* Older comments were saved without a date */}
+        {comment.postedAt && (
+          <time dateTime={comment.postedAt}>
+            {new Date(comment.postedAt).toLocaleDateString(undefined, DATE_FORMAT)}
+          </time>
+        )}
         <p>{comment.text}</p>
       </div>
     ))}

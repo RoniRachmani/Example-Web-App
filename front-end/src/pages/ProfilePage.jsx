@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useUser from '../useUser';
 import { saveDisplayName, validateDisplayName } from '../displayName';
+import FormField from '../FormField';
+import { focusFirstInvalid } from '../formValidation';
 import { authErrorMessage } from '../errorMessages';
 
 export default function ProfilePage() {
@@ -16,7 +18,7 @@ export default function ProfilePage() {
       <>
       <title>Profile | Blogify</title>
       <h1>Profile</h1>
-      <p><Link to='/login'>Log in</Link> to edit your profile.</p>
+      <p><Link to='/login' state={{ from: '/profile' }}>Log in</Link> to edit your profile.</p>
       </>
     );
   }
@@ -31,14 +33,18 @@ function ProfileForm({ user }) {
   const [displayName, setDisplayName] = useState(user.displayName || '');
   // Set when sign-up created the account but couldn't save the name
   const [message, setMessage] = useState(location.state?.message || '');
+  const [nameError, setNameError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   async function save(e) {
     e.preventDefault();
-    const [name, nameError] = validateDisplayName(displayName);
+    const form = e.currentTarget;
+    const [name, error] = validateDisplayName(displayName);
+    setNameError(error || '');
 
-    if (nameError) {
-      setMessage(nameError);
+    if (error) {
+      setMessage('');
+      focusFirstInvalid(form, { displayName: error });
       return;
     }
 
@@ -58,16 +64,17 @@ function ProfileForm({ user }) {
     <>
     <title>Profile | Blogify</title>
     <h1>Profile</h1>
-    <p>Signed in as {user.email}</p>
-    <form className='auth-form' onSubmit={save}>
+    <p>Logged in as {user.email}</p>
+    <form className='auth-form' noValidate onSubmit={save}>
       {message && <p role='status'>{message}</p>}
-      <label>
-        Display name (shown on your comments)
-        <input
-          autoComplete='nickname'
-          value={displayName}
-          onChange={e => setDisplayName(e.target.value)} />
-      </label>
+      <FormField
+        label='Display name (shown on your comments)'
+        name='displayName'
+        autoComplete='nickname'
+        required
+        error={nameError}
+        value={displayName}
+        onChange={e => setDisplayName(e.target.value)} />
       <button type='submit' disabled={isSaving}>Save</button>
     </form>
     </>

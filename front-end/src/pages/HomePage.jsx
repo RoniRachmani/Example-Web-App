@@ -1,8 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 import ArticlesList from '../ArticlesList';
 import articles from '../article-content';
 
+const POPULAR_COUNT = 2;
+
 export default function HomePage() {
+  const stats = useLoaderData();
+  // Most upvoted first. Ties, and articles with no counts, keep their usual order.
+  const popular = articles
+    .toSorted((a, b) => (stats[b.name]?.upvotes ?? 0) - (stats[a.name]?.upvotes ?? 0))
+    .slice(0, POPULAR_COUNT);
+
   return (
     <>
     <title>Blogify | Read. Write. React.</title>
@@ -16,8 +24,9 @@ export default function HomePage() {
       <Link to='/create-account'>Create a free account</Link> to upvote the articles
       you find useful and join the conversation in the comments.
     </p>
-    <h2>Latest articles</h2>
-    <ArticlesList articles={articles} />
+    <h2>Popular articles</h2>
+    <ArticlesList articles={popular} stats={stats} />
+    <p><Link to='/articles'>See all {articles.length} articles</Link></p>
     </>
   );
 }

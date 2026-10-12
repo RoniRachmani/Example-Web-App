@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useLoaderData } from 'react-router-dom';
+import { Link, useParams, useLoaderData } from 'react-router-dom';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth';
 import CommentsList from '../CommentsList';
@@ -7,6 +7,7 @@ import AddCommentForm from '../AddCommentForm';
 import articles from '../article-content';
 import useUser from '../useUser';
 import { apiErrorMessage } from '../errorMessages';
+import { readingMinutes } from '../articleStats';
 
 async function authHeaders(user) {
   const token = user && await user.getIdToken();
@@ -22,9 +23,11 @@ export default function ArticlePage() {
   const [upvoteError, setUpvoteError] = useState('');
   const [comments, setComments] = useState(data.comments);
 
-  const { user } = useUser();
+  const { isLoading, user } = useUser();
 
   const article = articles.find(a => a.name === name);
+  // Brings the visitor back to this article once they've logged in
+  const logInLink = <Link to='/login' state={{ from: '/articles/' + name }}>Log in</Link>;
 
   async function onUpvoteClicked() {
     setIsUpvoting(true);
@@ -55,17 +58,19 @@ export default function ArticlePage() {
     <>
     <title>{`${article.title} | Blogify`}</title>
     <h1>{article.title}</h1>
+    <p className='article-details'>{readingMinutes(article)} min read</p>
     {user && (
       <button disabled={upvoted || isUpvoting} onClick={onUpvoteClicked}>
         {upvoted ? 'Upvoted' : 'Upvote'}
       </button>
     )}
-    {upvoteError && <p role='alert'>{upvoteError}</p>}
+    {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
     <p>This article has {upvotes} {upvotes === 1 ? 'upvote' : 'upvotes'}</p>
+    {!isLoading && !user && <p>{logInLink} to upvote this article.</p>}
     {article.content.map(p => <p key={p}>{p}</p>)}
     {user
       ? <AddCommentForm onAddComment={onAddComment} />
-      : <p>Log in to add a comment</p>}
+      : <p>{logInLink} to add a comment</p>}
     <CommentsList comments={comments} />
     </>
   );

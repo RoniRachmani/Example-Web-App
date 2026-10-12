@@ -11,6 +11,31 @@ const userLineCount = page => page.locator('nav li.nav-user').evaluate(li => {
 
 const pageScrollsSideways = page => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
+test.describe('nav bar links', () => {
+  test('marks the page you are on', async ({ page }) => {
+    const current = page.locator('nav a[aria-current="page"]');
+
+    await page.goto('/');
+    await expect(current).toHaveText('Home');
+    await page.goto('/articles/learn-react');
+    await expect(current).toHaveText('Articles');
+    await page.goto('/login');
+    await expect(current).toHaveText('Log In');
+  });
+
+  test('fits on one row on a phone, with links tall enough to tap', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 720 });
+    await page.goto('/');
+
+    // The Log In link appears once Firebase has said nobody is logged in
+    await expect(page.locator('nav a')).toHaveCount(4);
+    const boxes = await page.locator('nav a').evaluateAll(links => links.map(a => a.getBoundingClientRect().toJSON()));
+    expect(new Set(boxes.map(box => Math.round(box.top))).size).toBe(1);
+    for (const box of boxes) expect(box.height).toBeGreaterThanOrEqual(40);
+    expect(await pageScrollsSideways(page)).toBe(false);
+  });
+});
+
 test.describe('nav bar user item', () => {
   test('shows the email when the user has no display name', async ({ page, firebase }) => {
     firebase.addAccount(account);
