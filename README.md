@@ -2,7 +2,13 @@
 
 [![CI](https://github.com/RoniRachmani/Example-Web-App/actions/workflows/ci.yml/badge.svg)](https://github.com/RoniRachmani/Example-Web-App/actions/workflows/ci.yml)
 
-A full-stack blog built with React and Vite on the front end, Node.js and Express on the back end, MongoDB Atlas for storage and Firebase Authentication for sign-in. It is deployed as a single service on Google Cloud App Engine.
+Blogify is my Product Ops lab. Trying a new process on a real product is risky, so I built one of my own: a small, live blog app where I test practices before I'd suggest them to a team. The app is simple on purpose. The interesting parts are around it:
+
+- **Release pipelines:** every pull request and every push to `main` runs lint, a build, browser tests and API tests in CI. A deploy is one command, and the previous version is kept for rollback.
+- **Consent-first analytics:** Google Analytics loads only after a visitor accepts it in the cookie banner, and the footer's "Cookie settings" lets them change their mind.
+- **AI-run maintenance:** Claude reviews my pull requests, Dependabot's minor and patch updates merge themselves once CI passes, and Claude Code commands handle package updates, pushes and deploys.
+
+Underneath, it is a full-stack blog built with React and Vite on the front end, Node.js and Express on the back end, MongoDB Atlas for storage and Firebase Authentication for sign-in. It is deployed as a single service on Google Cloud App Engine.
 
 **Live site:** https://app.ronirachmani.com
 
