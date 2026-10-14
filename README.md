@@ -90,6 +90,14 @@ These files are gitignored. Never commit them.
 | `back-end/.env` | Local development | `MONGODB_USERNAME=...` and `MONGODB_PASSWORD=...` |
 | `back-end/prod-env.yaml` | App Engine deploys (included by `app.yaml`) | The same two variables, under `env_variables:` |
 
+The keys in `back-end/.env` are kept in 1Password, in the item "Blogify back-end env" in the Blogify Inc. vault. `back-end/.env.tpl` (committed, no secrets) points each key at its field, so with the [1Password CLI](https://developer.1password.com/docs/cli/) signed in you can rebuild `.env` from `back-end/`:
+
+```bash
+npm run env:pull
+```
+
+After you add, change or remove a key in `.env`, run `npm run env:push` to update the 1Password item and `.env.tpl`, then commit `.env.tpl`.
+
 Example `prod-env.yaml`:
 
 ```yaml
