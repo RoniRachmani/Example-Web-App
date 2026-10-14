@@ -8,8 +8,8 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "anonymize-emails": "node scripts/anonymize-comment-emails.js",
-    "env:push": "node scripts/env-to-1password.js",
-    "env:pull": "op inject --force -i .env.tpl -o .env"
+    "secrets:push": "node scripts/secrets-1password.js push",
+    "secrets:pull": "node scripts/secrets-1password.js pull"
   },
   "keywords": [],
   "author": "",

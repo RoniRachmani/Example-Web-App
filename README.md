@@ -90,13 +90,13 @@ These files are gitignored. Never commit them.
 | `back-end/.env` | Local development | `MONGODB_USERNAME=...` and `MONGODB_PASSWORD=...` |
 | `back-end/prod-env.yaml` | App Engine deploys (included by `app.yaml`) | The same two variables, under `env_variables:` |
 
-The keys in `back-end/.env` are kept in 1Password, in the item "Blogify back-end env" in the Blogify Inc. vault. `back-end/.env.tpl` (committed, no secrets) points each key at its field, so with the [1Password CLI](https://developer.1password.com/docs/cli/) signed in you can rebuild `.env` from `back-end/`:
+All three are kept in 1Password, in the Blogify Inc. vault: `.env` and `prod-env.yaml` as the items "Blogify back-end env" and "Blogify back-end prod env", and `credentials.json` as the document "Blogify back-end credentials.json". The committed `back-end/.env.tpl` and `back-end/prod-env.yaml.tpl` hold no secrets, only references to those fields. With the [1Password CLI](https://developer.1password.com/docs/cli/) signed in, rebuild all three files from `back-end/`:
 
 ```bash
-npm run env:pull
+npm run secrets:pull
 ```
 
-After you add, change or remove a key in `.env`, run `npm run env:push` to update the 1Password item and `.env.tpl`, then commit `.env.tpl`.
+After you add, change or remove a key, or replace `credentials.json`, run `npm run secrets:push` from `back-end/` to update 1Password and the `.tpl` files, then commit the `.tpl` files. A push replaces what 1Password holds with your local files, so a key you removed locally is removed there too.
 
 Example `prod-env.yaml`:
 

@@ -19,6 +19,7 @@ node_modules/
 # Local-only files. Production env vars come from prod-env.yaml via app.yaml.
 .env
 .env.*
+*.tpl
 *.log
 .DS_Store
 test/

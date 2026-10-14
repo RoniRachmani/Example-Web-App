@@ -1,6 +1,6 @@
 Build and deploy the app to Google Cloud App Engine.
 
-Prerequisites (both are gitignored, so they must be copied onto each machine by hand):
+Prerequisites (both are gitignored; `npm run secrets:pull` in `back-end/` rebuilds them from 1Password):
 - `back-end/prod-env.yaml` — included by `app.yaml`; holds `MONGODB_USERNAME` / `MONGODB_PASSWORD`
 - `back-end/credentials.json` — Firebase service account key read by `server.js` at startup
 If either is missing, stop and tell the user; deploying without them breaks the live app.
