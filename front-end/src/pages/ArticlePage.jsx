@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useParams, useLoaderData } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useParams, useLoaderData, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth';
 import CommentsList from '../CommentsList';
@@ -15,6 +15,8 @@ async function authHeaders(user) {
 }
 
 export default function ArticlePage() {
+  const { hash } = useLocation();
+  const conversationRef = useRef(null);
   const { name } = useParams();
   const data = useLoaderData();
   const [upvotes, setUpvotes] = useState(data.upvotes);
@@ -26,8 +28,15 @@ export default function ArticlePage() {
   const { isLoading, user } = useUser();
 
   const article = articles.find(a => a.name === name);
+  useEffect(() => {
+    if (hash === '#comments' && !isLoading) {
+      conversationRef.current?.scrollIntoView();
+      conversationRef.current?.focus({ preventScroll: true });
+    }
+  }, [hash, isLoading]);
+
   // Brings the visitor back to this article once they've logged in
-  const logInLink = <Link to='/login' state={{ from: '/articles/' + name }}>Log in</Link>;
+  const logInLink = (anchor = '') => <Link to='/login' state={{ from: '/articles/' + name + anchor }}>Log in</Link>;
 
   async function onUpvoteClicked() {
     setIsUpvoting(true);
@@ -66,12 +75,20 @@ export default function ArticlePage() {
     )}
     {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
     <p>This article has {upvotes} {upvotes === 1 ? 'upvote' : 'upvotes'}</p>
-    {!isLoading && !user && <p>{logInLink} to upvote this article.</p>}
-    {article.content.map(p => <p key={p}>{p}</p>)}
+    {!isLoading && !user && <p>{logInLink()} to upvote this article.</p>}
+    {article.content.map(p => <p key={p}>{p.split(/(`[^`]+`|react\.dev)/g).map((part, index) =>
+      // The paragraph is static editorial text; fragments never change order.
+      // eslint-disable-next-line @eslint-react/no-array-index-key
+      <span key={index}>{part.startsWith('`') ? <code>{part.slice(1, -1)}</code> : part === 'react.dev' ? <a href='https://react.dev/learn'>react.dev</a> : part}</span>
+    )}</p>)}
+    <p><Link to='/articles'>Back to all articles</Link></p>
+    <section id='comments' ref={conversationRef} tabIndex={-1} aria-labelledby='comments-heading'>
+    <h2 id='comments-heading'>Comments</h2>
     {user
       ? <AddCommentForm onAddComment={onAddComment} />
-      : <p>{logInLink} to add a comment</p>}
+      : <p>{logInLink('#comments')} to add a comment</p>}
     <CommentsList comments={comments} />
+    </section>
     </>
   );
 }

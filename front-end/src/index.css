@@ -256,7 +256,7 @@ textarea {
   border-top: 1px solid #555;
 }
 
-.comment h4 {
+.comment h3 {
   margin: 0;
   font-size: 1.05em;
 }
@@ -276,15 +276,11 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-/* Fixed to the bottom of the window, so the page doesn't jump when it closes */
+/* Keep consent in the reading flow so it never covers a focused control. */
 .consent-banner {
-  position: fixed;
-  left: 50%;
-  bottom: 1rem;
-  transform: translateX(-50%);
-  z-index: 1;
   box-sizing: border-box;
-  width: min(800px, 100% - 2rem);
+  width: 100%;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -294,11 +290,6 @@ textarea {
   border-radius: 8px;
   background-color: var(--page);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Room to scroll the footer clear of the banner */
-#root:has(.consent-banner) {
-  padding-bottom: 10rem;
 }
 
 .consent-banner p {
@@ -343,4 +334,50 @@ button.link-button:hover {
   nav li.nav-user {
     max-width: calc(100% - 4px);
   }
+}
+
+/* Keep the title recognizable as a link before hover. */
+a.article-link h3 {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.auth-form button[type='submit'],
+.comment-form button[type='submit'] {
+  color: white;
+  background: #4147c7;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.password-input {
+  display: flex;
+  gap: 0.5em;
+}
+
+.password-input input {
+  min-width: 0;
+  flex: 1;
+}
+
+.password-toggle {
+  color: var(--link);
+  background: var(--page);
+  border-color: currentColor;
+}
+
+code {
+  font-size: 0.95em;
+  padding: 0.1em 0.25em;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+
+#comments:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 4px;
 }

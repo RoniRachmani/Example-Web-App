@@ -1,3 +1,5 @@
+import AuthContext from '../AuthContext';
+import { authDestination } from '../authDestination';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -65,7 +67,7 @@ export default function CreateAccountPage() {
 
     try {
       await saveDisplayName(user, name);
-      navigate(state?.from || '/articles');
+      navigate(authDestination(state));
     } catch {
       // The account exists and the user is signed in, so retrying here would fail
       // with "email already in use". Let them set the name on the profile page.
@@ -79,6 +81,7 @@ export default function CreateAccountPage() {
     <>
     <title>Create Account | Blogify</title>
     <h1>Create Account</h1>
+    <AuthContext state={state} creating />
     <form className='auth-form' noValidate onSubmit={createAccount}>
       {error && <p role='alert' className='form-error'>{error}</p>}
       <FormField

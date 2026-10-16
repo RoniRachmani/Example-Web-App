@@ -44,16 +44,25 @@ test.describe('analytics consent', () => {
     expect(requests).toEqual([]);
   });
 
-  test("doesn't move the page when the banner closes", async ({ page }) => {
-    await page.goto('/');
-    const navTop = async () => (await page.locator('nav').boundingBox()).y;
-    const before = await navTop();
-
-    await page.getByRole('button', { name: 'Decline' }).click();
-    await expect(page.getByRole('complementary', { name: 'Cookie consent' })).toHaveCount(0);
-
-    expect(await navTop()).toBe(before);
-  });
+  for (const width of [320, 640, 1280]) {
+    test(`consent stays clear of keyboard-focused controls at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('/');
+      const banner = page.getByRole('complementary', { name: 'Cookie consent' });
+      await expect(banner).toBeVisible();
+      const bannerBounds = await banner.boundingBox();
+      const navBounds = await page.locator('nav').boundingBox();
+      expect(bannerBounds.y + bannerBounds.height).toBeLessThanOrEqual(navBounds.y);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await expect(banner.getByRole('button', { name: 'Accept', exact: true })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(banner.getByRole('button', { name: 'Decline' })).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(banner).toHaveCount(0);
+    });
+  }
 
   test('lets the visitor change their mind from the footer', async ({ page }) => {
     await page.goto('/');

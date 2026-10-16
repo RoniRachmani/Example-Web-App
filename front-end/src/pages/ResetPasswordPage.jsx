@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import FormField from '../FormField';
 import { emailError, focusFirstInvalid } from '../formValidation';
 import { authErrorMessage } from '../errorMessages';
 
 export default function ResetPasswordPage() {
+  const { state } = useLocation();
   const [email, setEmail] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState('');
@@ -61,7 +62,7 @@ export default function ResetPasswordPage() {
         <button type='submit' disabled={isSubmitting}>Send Reset Link</button>
       </form>
     )}
-    <p><Link to='/login'>Back to log in</Link></p>
+    <p><Link to='/login' state={state}>Back to log in</Link></p>
     </>
   );
 }

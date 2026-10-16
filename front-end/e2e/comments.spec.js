@@ -13,7 +13,7 @@ test.describe('comment form', () => {
     await page.goto('/articles/learn-react');
 
     await expect(page.getByText('Log in to add a comment')).toBeVisible();
-    await expect(page.getByLabel('Comment')).toHaveCount(0);
+    await expect(page.getByLabel('Comment', { exact: true })).toHaveCount(0);
   });
 
   test('shows a comment saved without a date, with no date', async ({ page, api }) => {
@@ -29,13 +29,13 @@ test.describe('comment form', () => {
     const button = page.getByRole('button', { name: 'Add Comment' });
 
     await expect(button).toBeDisabled();
-    await page.getByLabel('Comment').fill('    ');
+    await page.getByLabel('Comment', { exact: true }).fill('    ');
     await expect(button).toBeDisabled();
   });
 
   test('allows 1000 characters and blocks 1001 with a message', async ({ page, firebase, api }) => {
     await openArticleSignedIn(page, firebase);
-    const input = page.getByLabel('Comment');
+    const input = page.getByLabel('Comment', { exact: true });
     const button = page.getByRole('button', { name: 'Add Comment' });
 
     await input.fill('x'.repeat(1000));
@@ -53,7 +53,7 @@ test.describe('comment form', () => {
     // 1000 characters, but 2000 UTF-16 units, which an input's maxLength would count.
     const emoji = '😀'.repeat(1000);
 
-    await page.getByLabel('Comment').fill(emoji);
+    await page.getByLabel('Comment', { exact: true }).fill(emoji);
     await expect(page.getByText(/Comments can be at most/)).toHaveCount(0);
     await page.getByRole('button', { name: 'Add Comment' }).click();
 
@@ -67,7 +67,7 @@ test.describe('comment form', () => {
     await page.goto('/articles/learn-react');
     await expect(page.getByText('No comments yet.')).toBeVisible();
 
-    await page.getByLabel('Comment').fill('  Great article!  ');
+    await page.getByLabel('Comment', { exact: true }).fill('  Great article!  ');
     await page.getByRole('button', { name: 'Add Comment' }).click();
 
     await expect(page.getByRole('heading', { name: 'Alice' })).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('comment form', () => {
     const today = await page.evaluate(() => new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }));
     await expect(page.locator('.comment time')).toHaveText(today);
     await expect(page.getByText('No comments yet.')).toHaveCount(0);
-    await expect(page.getByLabel('Comment')).toHaveValue('');
+    await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('');
     await expect(page.getByRole('button', { name: 'Add Comment' })).toBeDisabled();
     expect(api.posted).toEqual([expect.objectContaining({ postedBy: 'Alice', text: 'Great article!' })]);
   });
@@ -83,7 +83,7 @@ test.describe('comment form', () => {
   test("shows Anonymous, never the email, for a user without a display name", async ({ page, firebase, api }) => {
     await openArticleSignedIn(page, firebase);
 
-    await page.getByLabel('Comment').fill('Hello');
+    await page.getByLabel('Comment', { exact: true }).fill('Hello');
     await page.getByRole('button', { name: 'Add Comment' }).click();
 
     await expect(page.getByRole('heading', { name: 'Anonymous' })).toBeVisible();
@@ -95,12 +95,12 @@ test.describe('comment form', () => {
     await openArticleSignedIn(page, firebase);
 
     for (const count of [1, 2]) {
-      await page.getByLabel('Comment').fill('Great article!');
+      await page.getByLabel('Comment', { exact: true }).fill('Great article!');
       await page.getByRole('button', { name: 'Add Comment' }).click();
       await expect(page.getByText('Great article!')).toHaveCount(count);
       // The form clears just after the comment appears. Wait for that, or the
       // next fill can land first and be wiped.
-      await expect(page.getByLabel('Comment')).toHaveValue('');
+      await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('');
     }
 
     await page.reload();
@@ -111,11 +111,11 @@ test.describe('comment form', () => {
     await openArticleSignedIn(page, firebase);
     await page.route('**/api/articles/learn-react/comments', route => route.fulfill({ status: 429, body: 'Too Many Requests' }));
 
-    await page.getByLabel('Comment').fill('Please keep me');
+    await page.getByLabel('Comment', { exact: true }).fill('Please keep me');
     await page.getByRole('button', { name: 'Add Comment' }).click();
 
     await expect(page.getByRole('alert')).toHaveText("Your comment couldn't be posted. You're doing that too often, so please wait a few minutes.");
-    await expect(page.getByLabel('Comment')).toHaveValue('Please keep me');
+    await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('Please keep me');
     await expect(page.getByRole('button', { name: 'Add Comment' })).toBeEnabled();
     expect(api.posted).toHaveLength(0);
 
@@ -123,7 +123,7 @@ test.describe('comment form', () => {
     await page.unroute('**/api/articles/learn-react/comments');
     await page.getByRole('button', { name: 'Add Comment' }).click();
     await expect(page.getByText('Please keep me', { exact: true }).last()).toBeVisible();
-    await expect(page.getByLabel('Comment')).toHaveValue('');
+    await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('');
     await expect(page.getByRole('alert')).toHaveCount(0);
   });
 
@@ -131,12 +131,12 @@ test.describe('comment form', () => {
     await page.setViewportSize({ width: 375, height: 800 });
     await openArticleSignedIn(page, firebase);
 
-    await page.getByLabel('Comment').fill('first line\nsecond line');
+    await page.getByLabel('Comment', { exact: true }).fill('first line\nsecond line');
     await page.getByRole('button', { name: 'Add Comment' }).click();
     // innerText is the text as laid out: a collapsed line break would be a space
     await expect.poll(() => page.locator('.comment p').last().evaluate(p => p.innerText)).toBe('first line\nsecond line');
 
-    await page.getByLabel('Comment').fill('x'.repeat(300));
+    await page.getByLabel('Comment', { exact: true }).fill('x'.repeat(300));
     await page.getByRole('button', { name: 'Add Comment' }).click();
     await expect(page.getByText('x'.repeat(300))).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);

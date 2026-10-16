@@ -1,3 +1,5 @@
+import AuthContext from '../AuthContext';
+import { authDestination } from '../authDestination';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
@@ -34,7 +36,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmailAndPassword(getAuth(), email, password);
-      navigate(state?.from || '/articles');
+      navigate(authDestination(state));
     } catch (err) {
       setError(authErrorMessage(err));
       setIsSubmitting(false);
@@ -45,6 +47,7 @@ export default function LoginPage() {
     <>
     <title>Log In | Blogify</title>
     <h1>Log In</h1>
+    <AuthContext state={state} />
     <form className='auth-form' noValidate onSubmit={logIn}>
       {error && <p role='alert' className='form-error'>{error}</p>}
       <FormField
@@ -67,7 +70,7 @@ export default function LoginPage() {
         onChange={e => setPassword(e.target.value)} />
       <button type='submit' disabled={isSubmitting}>Log In</button>
     </form>
-    <p><Link to='/reset-password'>Forgot your password?</Link></p>
+    <p><Link to='/reset-password' state={state}>Forgot your password?</Link></p>
     <p><Link to='/create-account' state={state}>Don&apos;t have an account? Create one here</Link></p>
     </>
   );

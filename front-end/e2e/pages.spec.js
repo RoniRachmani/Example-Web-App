@@ -18,7 +18,45 @@ function contrast(foreground, background) {
 }
 
 test.describe('pages', () => {
+  test('shows a loading status and navigation while the initial article request is pending', async ({ page }) => {
+    const warnings = [];
+    page.on('console', message => {
+      if (message.type() === 'warning') warnings.push(message.text());
+    });
+    let release;
+    const pending = new Promise(resolve => { release = resolve; });
+    await page.route('**/api/articles/learn-react', async route => {
+      await pending;
+      await route.fallback();
+    });
+    try {
+      await page.goto('/articles/learn-react');
+      await expect(page.getByRole('status')).toHaveText('Loading Blogify…');
+      await expect(page.locator('nav').getByRole('link', { name: 'Home' })).toBeVisible();
+    } finally {
+      release();
+    }
+    await expect(page.getByRole('heading', { name: 'The Fastest Way to Learn React' })).toBeVisible();
+    await expect(page.getByRole('status')).toHaveCount(0);
+    expect(warnings.filter(message => message.includes('HydrateFallback'))).toEqual([]);
+  });
+
   for (const colorScheme of ['dark', 'light']) {
+    test(`auth controls have readable text and visible toggle borders in ${colorScheme} mode`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      await page.goto('/login');
+      for (const button of [page.getByRole('button', { name: 'Log In', exact: true }), page.getByRole('button', { name: 'Show password' })]) {
+        const colors = await button.evaluate(element => {
+          const style = getComputedStyle(element);
+          return { text: style.color, background: style.backgroundColor, border: style.borderColor };
+        });
+        expect(contrast(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5);
+        if (await button.getAttribute('aria-pressed')) {
+          expect(contrast(colors.border, colors.background)).toBeGreaterThanOrEqual(3);
+        }
+      }
+    });
+
     test(`article previews are readable in ${colorScheme} mode`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await page.goto('/articles');

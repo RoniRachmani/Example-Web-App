@@ -18,6 +18,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 const routes = [{
   path: '/',
   element: <Layout />,
+  hydrateFallbackElement: <Layout><p role='status'>Loading Blogify…</p></Layout>,
   // Inside the layout, so a broken link still has the nav bar to leave by
   errorElement: <Layout><NotFoundPage /></Layout>,
   children: [{
