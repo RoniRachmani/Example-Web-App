@@ -112,3 +112,9 @@ The extension interruption was resolved in the next turn. Reloading the signed-i
 - Remaining manual checks: VoiceOver/NVDA announcements, a complete keyboard pass of all authenticated/profile/signup interactions, and fresh real-credential authentication. Browser plugin was not listed, so repository Playwright handled repeatable QA; the computer-use Edge connection handled the existing real session and browser zoom.
 
 Release diff reviewed; no setup or API contracts changed, so README updates were unnecessary. Production deployment and smoke results are recorded after deployment below.
+
+Deployed release commit `52d1219` as App Engine version `20261016t124509`, receiving 100% of traffic. Production smoke checks passed on `https://app.ronirachmani.com` at 1280×800 and 320×800 across home, articles, React article, login, signup and recovery. Verified page titles, meaningful content, no framework overlays, no app console warnings/errors, no horizontal overflow, article-aware login/recovery links, password visibility, Back to article → Comments focus, consent placement/dismissal, and the two remaining reader comments. Screenshots were captured outside the repository and inspected.
+
+The server startup import check also passed from a temporary working directory, stopping at its expected missing-credentials read. Both copies of `src/text.js` remain identical.
+
+Automatic approval review rejected deletion of unused App Engine version `20261010t175640` because it is an irreversible production mutation without explicit deletion authorization. No deletion occurred. The live version, previous release `20261012t164417` and the older unused version all remain available. No commits were pushed in this release pass.
