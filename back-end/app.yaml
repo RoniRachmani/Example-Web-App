@@ -2,6 +2,10 @@ includes:
   - prod-env.yaml
 runtime: nodejs24
 
+# Cap instances so a traffic spike can't run up the bill.
+automatic_scaling:
+  max_instances: 2
+
 # Redirect HTTP to HTTPS. The app adds the HSTS header itself (helmet in src/app.js).
 handlers:
   - url: /.*
