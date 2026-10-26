@@ -31,3 +31,6 @@ back-end/dist
 back-end/prod-env.yaml
 back-end/src/testConnection.js
 back-end/err.log
+
+# Database backups from `npm run backup-db`
+back-end/backups/

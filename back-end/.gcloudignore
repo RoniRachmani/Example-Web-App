@@ -24,4 +24,5 @@ node_modules/
 .DS_Store
 test/
 scripts/
+backups/
 src/testConnection.js

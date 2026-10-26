@@ -8,6 +8,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "anonymize-emails": "node scripts/anonymize-comment-emails.js",
+    "backup-db": "node scripts/backup-db.js",
     "secrets:push": "node scripts/secrets-1password.js push",
     "secrets:pull": "node scripts/secrets-1password.js pull"
   },
