@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/RoniRachmani/Example-Web-App/actions/workflows/ci.yml/badge.svg)](https://github.com/RoniRachmani/Example-Web-App/actions/workflows/ci.yml)
 
-Blogify is my Product Ops lab. Trying a new process on a real product is risky, so I built one of my own: a small, live blog app where I test practices before I'd suggest them to a team. The app is simple on purpose. The interesting parts are around it:
+Blogify is my hands-on Product Ops lab: a simple, live blog that serves as a simulated company. I use it to explore product tools and workflows—from task tracking and roadmapping to analytics, customer feedback, and releases—and try selected ideas on a working app. The app is simple on purpose. Some examples of what's in place today:
 
 - **Release pipelines:** every pull request and every push to `main` runs lint, a build, browser tests and API tests in CI. A deploy is one command, and the previous version is kept for rollback.
 - **Consent-first analytics:** Google Analytics loads only after a visitor accepts it in the cookie banner, and the footer's "Cookie settings" lets them change their mind.
@@ -13,6 +13,12 @@ Underneath, it is a full-stack blog built with React and Vite on the front end, 
 **Live site:** https://app.ronirachmani.com
 
 ![Screenshot of the Blogify app](https://github.com/user-attachments/assets/57297544-746d-4b7a-bab2-a9c32df6896f)
+
+## Exploring product tools
+
+I explore tools across the product lifecycle, looking at what they offer and how they might fit this project. Some become working integrations; others remain research. The features and tech stack below describe what Blogify currently uses.
+
+Have a product tool or workflow worth exploring? [Open an issue](https://github.com/RoniRachmani/Example-Web-App/issues/new) with a suggestion and the problem it could help solve.
 
 ## Features
 
@@ -28,7 +34,7 @@ Underneath, it is a full-stack blog built with React and Vite on the front end, 
 | Layer      | Tools |
 | ---------- | ----- |
 | Front end  | React 19, React Router 7 (data loaders), Vite, Axios, Firebase Web SDK, plain CSS |
-| Back end   | Node.js 22, Express 5, MongoDB Node driver, Firebase Admin SDK |
+| Back end   | Node.js 24, Express 5, MongoDB Node driver, Firebase Admin SDK |
 | Data       | MongoDB Atlas |
 | Hosting    | Google Cloud App Engine (standard, `nodejs24` runtime) |
 | Tooling    | ESLint 10, `node:test`, GitHub Actions, Dependabot, Claude Code |
@@ -68,7 +74,7 @@ Article text lives in the front end (`front-end/src/article-content.js`). MongoD
 
 ### Prerequisites
 
-- Node.js 22 (see `.nvmrc`; run `nvm use` if you use nvm)
+- Node.js 24 (see `.nvmrc`; run `nvm use` if you use nvm)
 - A MongoDB Atlas cluster
 - A Firebase project with Email/Password sign-in enabled
 - The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install), only if you deploy
@@ -153,7 +159,8 @@ Requests are rate limited and return `429` over the limit: 1000 requests per cli
 
 | Method | Path | Auth | Description |
 | ------ | ---- | ---- | ----------- |
-| `GET`  | `/api/articles/:name` | No | Get an article as `{ name, upvotes, upvoted, comments }`, each comment as `{ postedBy, text }`. Send a token (optional) to have `upvoted` say whether that user has upvoted; without one, or with an invalid one, it's `false`. Who upvoted and commenters' `uid`s are never sent. The two `POST` routes return the same shape |
+| `GET`  | `/api/articles` | No | Get an array of article summaries as `{ name, upvotes, comments }`, where `comments` is a count. No comment text, authors or user IDs are sent |
+| `GET`  | `/api/articles/:name` | No | Get an article as `{ name, upvotes, upvoted, comments }`, each comment as `{ postedBy, text, postedAt }`. `postedAt` is an ISO 8601 timestamp; older comments may omit it. Send a token (optional) to have `upvoted` say whether that user has upvoted; without one, or with an invalid one, it's `false`. Who upvoted and commenters' `uid`s are never sent. The two `POST` routes return the same shape |
 | `POST` | `/api/articles/:name/upvote` | Yes | Upvote an article, once per user. Returns `403` if already upvoted |
 | `POST` | `/api/articles/:name/comments` | Yes | Add a comment. Body: `{ "text": "..." }`, 1–1000 characters after trimming, otherwise `400`. The author comes from the sign-in token, never the body: the user's display name, or `Anonymous` if they have no name or it has nothing visible in it (never their email). Names have control and bidi-override characters removed and are cut to 50 characters without splitting an emoji. Limits count Unicode code points, so an emoji is one character. Each comment also stores the author's `uid`, since display names aren't unique |
 
