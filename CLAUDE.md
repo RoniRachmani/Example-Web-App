@@ -54,7 +54,3 @@ The Firebase *web* config in `front-end/src/firebase.js` is public by design and
 - React lint rules come from `@eslint-react/eslint-plugin` plus `eslint-plugin-react-hooks`. Don't add `eslint-plugin-react` back: it doesn't support ESLint 10.
 - `back-end/src/text.js` and `front-end/src/text.js` (text limits and display-name clean-up) must stay identical. Edit one and copy it over; a back-end test fails if they differ.
 - The `overrides` blocks in both `package.json` files pin transitive dependencies to fix security advisories. Don't remove entries without checking `npm audit`.
-
-## Slash commands
-
-`.claude/commands/` defines `/run-local`, `/deploy` (App Engine), `/push` and `/update-packages`.
