@@ -4,8 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Started by security-auto-fix.yml, whose pushes don't trigger pull_request
-  workflow_dispatch:
 
 permissions:
   contents: read
