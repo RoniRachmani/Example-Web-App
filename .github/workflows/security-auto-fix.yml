@@ -1,0 +1,53 @@
+name: Security auto-fix
+
+# Covers the alerts Dependabot security updates can't: it won't change `overrides` or move a
+# transitive package past its parent's range. Everything else still goes through Dependabot.
+on:
+  schedule:
+    - cron: '30 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-auto-fix
+
+env:
+  BRANCH: security/auto-fix
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - id: fix
+        run: node .github/scripts/fix-advisories.js
+      - id: changes
+        run: echo "found=$([ -n "$(git status --porcelain)" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      # A personal token, not GITHUB_TOKEN: GitHub holds CI on github-actions[bot] PRs for approval,
+      # so the checks the "Require CI" ruleset waits for would never run. Only this step gets it,
+      # so nothing npm installs can read it.
+      - if: steps.changes.outputs.found == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -C "$BRANCH"
+          git commit -am 'Fix npm security advisories'
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --head "$BRANCH" --title 'Fix npm security advisories' --body "$REPORT"
+          fi
+          # Same policy as dependabot-auto-merge.yml: majors wait for a human
+          if [ "$CROSS_MAJOR" = 'false' ]; then
+            gh pr merge "$BRANCH" --auto --squash
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.SECURITY_AUTOFIX_TOKEN }}
+          REPORT: ${{ steps.fix.outputs.report }}
+          CROSS_MAJOR: ${{ steps.fix.outputs.cross-major }}
