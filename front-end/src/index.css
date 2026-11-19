@@ -90,9 +90,25 @@ main > p {
 /* Small print and controls inside the reading column stay in the sans */
 main > p.article-details,
 main > p.form-error,
-main > p[role='status'] {
+main > p[role='status'],
+main:has(> form) > p {
   font-family: var(--sans);
   font-size: 1rem;
+}
+
+/* Under the article: the Upvote button, or a prompt to log in first */
+.article-upvote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75em 1em;
+  margin: 2em 0 1em;
+  padding-top: 1.25em;
+  border-top: 1px solid var(--line);
+}
+
+.article-upvote p {
+  margin: 0;
 }
 
 /* Links */
@@ -188,12 +204,12 @@ button:disabled {
 
 /* A button that looks like a link */
 button.link-button {
-  min-height: 0;
+  /* As tall as the other controls, so it's easy to tap */
+  min-height: 44px;
   background: none;
   border: none;
   border-radius: 0;
-  /* Vertical padding only, to make it easier to tap */
-  padding: 0.5em 0;
+  padding: 0;
   color: var(--accent);
   font-weight: 500;
 }

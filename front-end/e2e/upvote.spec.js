@@ -12,7 +12,7 @@ test.describe('upvote button', () => {
   test('is hidden from signed-out visitors', async ({ page }) => {
     await page.goto('/articles/learn-react');
 
-    await expect(page.getByText('This article has 0 upvotes')).toBeVisible();
+    await expect(page.locator('main > p.article-details')).toHaveText(/ · 0 upvotes$/);
     await expect(page.getByRole('button', { name: /Upvote/ })).toHaveCount(0);
     await expect(page.getByText('Log in to upvote this article.').getByRole('link', { name: 'Log in' })).toBeVisible();
   });
@@ -24,17 +24,27 @@ test.describe('upvote button', () => {
     await expect(page.getByText('Log in to upvote this article.')).toHaveCount(0);
   });
 
+  test('asks for the upvote after the article text, not before it', async ({ page, firebase }) => {
+    await openArticleSignedIn(page, firebase);
+
+    const button = page.getByRole('button', { name: 'Upvote' });
+    const lastParagraph = page.getByText('Use them as your map.');
+    const follows = await button.evaluate((el, para) =>
+      Boolean(para.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING), await lastParagraph.elementHandle());
+    expect(follows).toBe(true);
+  });
+
   test('counts one upvote, then shows it was counted, even after a reload', async ({ page, firebase }) => {
     await openArticleSignedIn(page, firebase);
 
     await page.getByRole('button', { name: 'Upvote' }).click();
 
-    await expect(page.getByText('This article has 1 upvote', { exact: true })).toBeVisible();
+    await expect(page.locator('main > p.article-details')).toHaveText(/ · 1 upvote$/);
     await expect(page.getByRole('button', { name: 'Upvoted' })).toBeDisabled();
 
     await page.reload();
     await expect(page.getByRole('button', { name: 'Upvoted' })).toBeDisabled();
-    await expect(page.getByText('This article has 1 upvote', { exact: true })).toBeVisible();
+    await expect(page.locator('main > p.article-details')).toHaveText(/ · 1 upvote$/);
   });
 
   test('shows an upvote made in another tab as counted, without an error', async ({ page, firebase, api }) => {
@@ -58,6 +68,6 @@ test.describe('upvote button', () => {
 
     await expect(page.getByRole('alert')).toHaveText("Your upvote couldn't be saved. Your login has expired, so please log in again.");
     await expect(page.getByRole('button', { name: 'Upvote' })).toBeEnabled();
-    await expect(page.getByText('This article has 0 upvotes')).toBeVisible();
+    await expect(page.locator('main > p.article-details')).toHaveText(/ · 0 upvotes$/);
   });
 });

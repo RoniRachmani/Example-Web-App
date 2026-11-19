@@ -128,7 +128,7 @@ test.describe('pages', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'The Fastest Way to Learn React' })).toBeVisible();
     await expect(page.getByText('Start with the JavaScript that React leans on')).toBeVisible();
     await expect(page.getByText("Upvotes and comments couldn't be loaded.")).toBeVisible();
-    await expect(page.getByText(/This article has \d+ upvote/)).toHaveCount(0);
+    await expect(page.locator('main > p.article-details')).toHaveText(/^\d+ min read$/);
     await expect(page.getByText('No comments yet.')).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Page not found' })).toHaveCount(0);
   });
@@ -172,6 +172,6 @@ test.describe('pages', () => {
   test('says "1 upvote", not "1 upvotes"', async ({ page, api }) => {
     api.db.docs[0].upvotes = 1;
     await page.goto('/articles/learn-react');
-    await expect(page.getByText('This article has 1 upvote', { exact: true })).toBeVisible();
+    await expect(page.locator('main > p.article-details')).toHaveText(/ · 1 upvote$/);
   });
 });
