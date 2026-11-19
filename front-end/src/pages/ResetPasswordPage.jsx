@@ -38,8 +38,8 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-    <title>Reset Password | Blogify</title>
-    <h1>Reset Password</h1>
+    <title>Reset password | Blogify</title>
+    <h1>Reset password</h1>
     {sentTo ? (
       // The same message whether or not the account exists, so this page
       // can't be used to find out who has one.
@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
           error={fieldErrors.email}
           value={email}
           onChange={e => setEmail(e.target.value)} />
-        <button type='submit' disabled={isSubmitting}>Send Reset Link</button>
+        <button type='submit' disabled={isSubmitting}>Send reset link</button>
       </form>
     )}
     <p><Link to='/login' state={state}>Back to log in</Link></p>

@@ -68,14 +68,18 @@ export default function ArticlePage() {
     <title>{`${article.title} | Blogify`}</title>
     <h1>{article.title}</h1>
     <p className='article-details'>{readingMinutes(article)} min read</p>
-    {user && (
-      <button disabled={upvoted || isUpvoting} onClick={onUpvoteClicked}>
-        {upvoted ? 'Upvoted' : 'Upvote'}
-      </button>
+    {!data.unavailable && (
+      <>
+      {user && (
+        <button className='button-primary' disabled={upvoted || isUpvoting} onClick={onUpvoteClicked}>
+          {upvoted ? 'Upvoted' : 'Upvote'}
+        </button>
+      )}
+      {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
+      <p>This article has {upvotes} {upvotes === 1 ? 'upvote' : 'upvotes'}</p>
+      {!isLoading && !user && <p>{logInLink()} to upvote this article.</p>}
+      </>
     )}
-    {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
-    <p>This article has {upvotes} {upvotes === 1 ? 'upvote' : 'upvotes'}</p>
-    {!isLoading && !user && <p>{logInLink()} to upvote this article.</p>}
     {article.content.map(p => <p key={p}>{p.split(/(`[^`]+`|react\.dev)/g).map((part, index) =>
       // The paragraph is static editorial text; fragments never change order.
       // eslint-disable-next-line @eslint-react/no-array-index-key
@@ -84,10 +88,16 @@ export default function ArticlePage() {
     <p><Link to='/articles'>Back to all articles</Link></p>
     <section id='comments' ref={conversationRef} tabIndex={-1} aria-labelledby='comments-heading'>
     <h2 id='comments-heading'>Comments</h2>
-    {user
-      ? <AddCommentForm onAddComment={onAddComment} />
-      : <p>{logInLink('#comments')} to add a comment</p>}
-    <CommentsList comments={comments} />
+    {data.unavailable ? (
+      <p>Upvotes and comments couldn&apos;t be loaded. Try refreshing the page in a minute.</p>
+    ) : (
+      <>
+      {user
+        ? <AddCommentForm onAddComment={onAddComment} />
+        : <p>{logInLink('#comments')} to add a comment</p>}
+      <CommentsList comments={comments} />
+      </>
+    )}
     </section>
     </>
   );
@@ -104,7 +114,13 @@ export async function loader({ params }) {
   const auth = getAuth();
   await auth.authStateReady();
 
-  const response = await axios.get('/api/articles/' + params.name, { headers: await authHeaders(auth.currentUser) });
-  const { upvotes, upvoted, comments } = response.data;
-  return { upvotes, upvoted, comments };
+  // The text is static, so a failed request still shows the article, just without
+  // its upvotes and comments, instead of the error page.
+  try {
+    const response = await axios.get('/api/articles/' + params.name, { headers: await authHeaders(auth.currentUser) });
+    const { upvotes, upvoted, comments } = response.data;
+    return { upvotes, upvoted, comments };
+  } catch {
+    return { unavailable: true, upvotes: 0, upvoted: false, comments: [] };
+  }
 }

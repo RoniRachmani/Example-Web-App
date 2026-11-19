@@ -1,19 +1,31 @@
+/* Colours. Every text colour is at least 4.5:1 against --page and --surface,
+   and --accent is the blue of the favicon. Dark mode redefines the same tokens. */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  --page: #fbfaf8;
+  --surface: #f2f0ec;
+  --ink: #1c1f24;
+  --muted: #5a606b;
+  --line: #e2dfd9;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --on-accent: #ffffff;
+  --error: #b3261e;
+
+  /* Kept for the rules below that already read them */
+  --link: var(--accent);
+  --link-hover: var(--accent-hover);
+
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --serif: 'Iowan Old Style', Charter, 'Bitstream Charter', Georgia, serif;
+  --radius: 10px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  font-family: var(--sans);
+  line-height: 1.55;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  /* Links and errors, each at least 4.5:1 against the page background.
-     The light-mode values are set further down. */
-  --link: #8f95ff;
-  --link-hover: #a9aeff;
-  --error: #ff8a80;
-  --muted: #b0b0b0;
-  --page: #242424;
+  color: var(--ink);
+  background-color: var(--page);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -21,19 +33,89 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #14161a;
+    --surface: #1d2026;
+    --ink: #e8e6e3;
+    --muted: #a3a8b3;
+    --line: #2e323a;
+    --accent: #7aa7ff;
+    --accent-hover: #a3c2ff;
+    --on-accent: #0b1220;
+    --error: #ff8a80;
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--page);
+}
+
+/* Type */
+h1,
+h2,
+h3 {
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: 2.5rem;
+  line-height: 1.12;
+  margin: 1.25em 0 0.5em;
+  overflow-wrap: break-word;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin: 2em 0 0.6em;
+}
+
+/* Reading text: a serif at a comfortable size and line length */
+main p {
+  max-width: 68ch;
+}
+
+main > p {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+/* Small print and controls inside the reading column stay in the sans */
+main > p.article-details,
+main > p.form-error,
+main > p[role='status'] {
+  font-family: var(--sans);
+  font-size: 1rem;
+}
+
+/* Links */
 a {
   font-weight: 500;
-  color: var(--link);
-  text-decoration: inherit;
+  color: var(--accent);
+  text-decoration: none;
 }
 
 a:hover {
-  color: var(--link-hover);
+  color: var(--accent-hover);
+  text-decoration: underline;
 }
 
 /* Links inside running text are underlined, so colour isn't the only cue */
 main p a {
   text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+main p a:hover {
+  text-decoration-thickness: 2px;
 }
 
 /* Hidden until it gets keyboard focus; jumps past the nav bar */
@@ -54,135 +136,220 @@ main:focus {
   outline: none;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-  overflow-wrap: break-word;
-}
-
+/* Buttons: one secondary style (outlined) and one primary (filled) */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--muted);
+  padding: 0.55em 1.2em;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  background-color: var(--page);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.1s var(--ease);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-    --link: #4a50d9;
-    --link-hover: #3138b3;
-    --error: #b3261e;
-    --muted: #595959;
-    --page: #ffffff;
+button:hover {
+  border-color: var(--accent);
+  background-color: var(--surface);
+}
+
+button.button-primary,
+.auth-form button[type='submit'],
+.comment-form button[type='submit'] {
+  color: var(--on-accent);
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+button.button-primary:hover,
+.auth-form button[type='submit']:hover,
+.comment-form button[type='submit']:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button:active:not(:disabled) {
+    transform: translateY(1px);
   }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+/* A button that looks like a link */
+button.link-button {
+  min-height: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  /* Vertical padding only, to make it easier to tap */
+  padding: 0.5em 0;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+button.link-button:hover {
+  text-decoration: underline;
+}
+
+/* Header: the wordmark, then the page links, with the account on the right */
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+a.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+a.wordmark img {
+  width: 24px;
+  height: 24px;
 }
 
 nav {
-  background-color: #333;
-  padding: 6px 10px;
-  text-align: center;
+  flex: 1;
+  min-width: 0;
 }
 
 nav ul {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   align-items: center;
+  gap: 0 0.25rem;
   list-style: none;
-  margin: 0;
+  /* The last link's text ends on the page's right edge, not its padding */
+  margin: 0 -0.75rem 0 0;
   padding: 0;
 }
 
 nav li {
-  margin: 0 15px;
   white-space: nowrap;
 }
 
-/* Long display names get an ellipsis instead of overflowing on narrow screens. */
+/* Everything from the user's name on sits at the right */
+nav li.nav-account {
+  margin-left: auto;
+}
+
 nav li.nav-user {
-  max-width: calc(100% - 30px);
+  color: var(--muted);
+  font-size: 0.95em;
+  padding: 0 0.5rem;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Tall enough to tap comfortably on a phone */
-nav a {
-  display: inline-block;
-  color: white;
+nav a,
+nav button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 8px;
+  color: var(--ink);
+  background: none;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 3px;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s var(--ease);
 }
 
-nav a:hover {
-  color: white;
-  background-color: #555;
+nav a:hover,
+nav button:hover {
+  color: var(--ink);
+  background-color: var(--surface);
+  text-decoration: none;
 }
 
 /* The page you're on */
 nav a[aria-current='page'] {
-  background-color: #555;
   text-decoration: underline;
-  text-underline-offset: 0.3em;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.4em;
 }
 
-a:hover {
-  text-decoration: underline;
-}
-
-/* Article previews: the title in the page's text colour and the summary muted,
-   readable on both the dark and the light background. */
+/* Article previews: one card each, the whole card is the link */
 a.article-link {
   display: block;
+  margin: 0 0 1rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--page);
+  color: var(--ink);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
+a.article-link:hover {
+  color: var(--ink);
+  text-decoration: none;
+  border-color: var(--accent);
+  box-shadow: 0 6px 20px -12px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a.article-link:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* The title stays underlined, so it reads as a link before hover */
 a.article-link h3 {
-  color: rgba(255, 255, 255, 0.87);
-  margin-bottom: 0.5em;
+  margin: 0 0 0.4em;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+a.article-link:hover h3 {
+  text-decoration-color: var(--accent);
 }
 
 a.article-link p {
+  margin: 0;
   color: var(--muted);
-  font-size: 0.9em;
-  text-decoration: none;
+  font-weight: 400;
 }
 
 /* Reading time and counts under a preview or an article's title */
 a.article-link p.article-details,
 p.article-details {
+  margin-top: 0.6em;
   color: var(--muted);
-  font-size: 0.85em;
-}
-
-@media (prefers-color-scheme: light) {
-  a.article-link h3 {
-    color: #333;
-  }
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Forms: one field per line, label above its input */
@@ -191,7 +358,7 @@ form.comment-form {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.75em;
+  gap: 0.9em;
   max-width: 400px;
 }
 
@@ -202,8 +369,9 @@ form.comment-form {
 form label {
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
+  gap: 0.3em;
   width: 100%;
+  font-weight: 500;
 }
 
 /* A label and input with the hint and error for it underneath */
@@ -213,7 +381,7 @@ form label {
 
 .field-hint,
 .field-error {
-  margin: 0.25em 0 0;
+  margin: 0.3em 0 0;
   font-size: 0.9em;
 }
 
@@ -233,124 +401,30 @@ form label {
   border-left: 3px solid var(--error);
 }
 
-input[aria-invalid='true'] {
-  border: 2px solid var(--error);
-  border-radius: 3px;
-}
-
 input,
 textarea {
   font: inherit;
-  padding: 0.4em 0.6em;
+  font-weight: 400;
+  color: var(--ink);
+  background-color: var(--page);
+  padding: 0.6em 0.75em;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
   box-sizing: border-box;
   width: 100%;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  border-color: var(--accent);
+}
+
+input[aria-invalid='true'] {
+  border: 2px solid var(--error);
 }
 
 textarea {
   resize: vertical;
-}
-
-/* One comment per block, with the name standing out from the text */
-.comment {
-  padding: 0.75em 0;
-  border-top: 1px solid #555;
-}
-
-.comment h3 {
-  margin: 0;
-  font-size: 1.05em;
-}
-
-.comment p {
-  margin: 0.25em 0 0;
-}
-
-.comment time {
-  color: var(--muted);
-  font-size: 0.85em;
-}
-
-/* Keep line breaks, and wrap a long unbroken word instead of overflowing */
-.comment p {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-/* Keep consent in the reading flow so it never covers a focused control. */
-.consent-banner {
-  box-sizing: border-box;
-  width: 100%;
-  margin-bottom: 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5em 1em;
-  padding: 0.75em 1em;
-  border: 1px solid var(--link);
-  border-radius: 8px;
-  background-color: var(--page);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-.consent-banner p {
-  margin: 0;
-  flex: 1 1 250px;
-}
-
-footer {
-  margin-top: 3em;
-  padding-top: 1em;
-  border-top: 1px solid #555;
-  font-size: 0.9em;
-}
-
-/* A button that looks like a link */
-button.link-button {
-  background: none;
-  border: none;
-  /* Vertical padding only, to make it easier to tap */
-  padding: 0.5em 0;
-  color: var(--link);
-  font-weight: 500;
-}
-
-button.link-button:hover {
-  text-decoration: underline;
-}
-/* Phones: give the text the width, and keep the nav links on one row */
-@media (max-width: 600px) {
-  h1 {
-    font-size: 2.2em;
-  }
-
-  nav {
-    padding: 4px;
-  }
-
-  nav li {
-    margin: 0 2px;
-  }
-
-  nav li.nav-user {
-    max-width: calc(100% - 4px);
-  }
-}
-
-/* Keep the title recognizable as a link before hover. */
-a.article-link h3 {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.auth-form button[type='submit'],
-.comment-form button[type='submit'] {
-  color: white;
-  background: #4147c7;
-}
-
-button:disabled {
-  opacity: 0.65;
-  cursor: default;
 }
 
 .password-input {
@@ -363,21 +437,104 @@ button:disabled {
   flex: 1;
 }
 
-.password-toggle {
-  color: var(--link);
-  background: var(--page);
-  border-color: currentColor;
+/* One comment per block, with the name standing out from the text */
+.comment {
+  padding: 1em 0;
+  border-top: 1px solid var(--line);
+}
+
+.comment h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.comment time {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+/* Keep line breaks, and wrap a long unbroken word instead of overflowing */
+.comment p {
+  margin: 0.3em 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* A plain bar above the header. It stays in the reading flow so it never covers
+   a focused control. */
+.consent-banner {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 0.75em;
+  padding: 0.6em 0.75em 0.6em 1em;
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  font-size: 0.9rem;
+}
+
+.consent-banner p {
+  margin: 0;
+  flex: 1 1 250px;
+}
+
+.consent-banner button {
+  min-height: 40px;
+  padding: 0.4em 1em;
+}
+
+footer {
+  margin-top: 4em;
+  padding: 1em 0 2em;
+  border-top: 1px solid var(--line);
+  font-size: 0.9em;
 }
 
 code {
-  font-size: 0.95em;
-  padding: 0.1em 0.25em;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  padding: 0.1em 0.3em;
+  background: var(--surface);
+  border-radius: 4px;
   overflow-wrap: anywhere;
 }
 
 #comments:focus-visible {
-  outline: 2px solid var(--link);
+  outline: 2px solid var(--accent);
   outline-offset: 4px;
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2rem;
+    margin-top: 1em;
+  }
+
+  .site-header {
+    gap: 0;
+  }
+
+  /* The links get a row of their own under the wordmark */
+  nav {
+    flex-basis: 100%;
+  }
+
+  /* On its own row, the first link's text lines up with the wordmark too */
+  nav ul {
+    gap: 0;
+    margin: 0 -0.6rem;
+  }
+
+  nav a,
+  nav button {
+    padding: 0 0.6rem;
+  }
+
+  a.article-link {
+    padding: 1rem;
+  }
 }

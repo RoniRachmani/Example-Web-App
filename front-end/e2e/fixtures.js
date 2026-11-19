@@ -244,8 +244,8 @@ export async function logIn(page, { email, password }) {
   await page.goto('/login');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Log In' }).click();
-  await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible();
+  await page.getByRole('button', { name: 'Log in' }).click();
+  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
 }
 
 export async function fillSignUpForm(page, { displayName, email = 'bob@example.com', password = 'secret123', confirmPassword = password }) {
@@ -259,5 +259,5 @@ export async function fillSignUpForm(page, { displayName, email = 'bob@example.c
 export async function postComment(page, article, text) {
   await page.goto(`/articles/${article}`);
   await page.getByLabel('Comment', { exact: true }).fill(text);
-  await page.getByRole('button', { name: 'Add Comment' }).click();
+  await page.getByRole('button', { name: 'Add comment' }).click();
 }

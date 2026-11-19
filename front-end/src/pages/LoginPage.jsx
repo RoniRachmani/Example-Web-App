@@ -45,8 +45,8 @@ export default function LoginPage() {
 
   return (
     <>
-    <title>Log In | Blogify</title>
-    <h1>Log In</h1>
+    <title>Log in | Blogify</title>
+    <h1>Log in</h1>
     <AuthContext state={state} />
     <form className='auth-form' noValidate onSubmit={logIn}>
       {error && <p role='alert' className='form-error'>{error}</p>}
@@ -68,7 +68,7 @@ export default function LoginPage() {
         error={fieldErrors.password}
         value={password}
         onChange={e => setPassword(e.target.value)} />
-      <button type='submit' disabled={isSubmitting}>Log In</button>
+      <button type='submit' disabled={isSubmitting}>Log in</button>
     </form>
     <p><Link to='/reset-password' state={state}>Forgot your password?</Link></p>
     <p><Link to='/create-account' state={state}>Don&apos;t have an account? Create one here</Link></p>
