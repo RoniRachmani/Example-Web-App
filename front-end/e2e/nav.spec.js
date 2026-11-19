@@ -20,14 +20,14 @@ test.describe('nav bar links', () => {
     await page.goto('/articles/learn-react');
     await expect(current).toHaveText('Articles');
     await page.goto('/login');
-    await expect(current).toHaveText('Log In');
+    await expect(current).toHaveText('Log in');
   });
 
   test('fits on one row on a phone, with links tall enough to tap', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 720 });
     await page.goto('/');
 
-    // The Log In link appears once Firebase has said nobody is logged in
+    // The Log in link appears once Firebase has said nobody is logged in
     await expect(page.locator('nav a')).toHaveCount(4);
     const boxes = await page.locator('nav a').evaluateAll(links => links.map(a => a.getBoundingClientRect().toJSON()));
     expect(new Set(boxes.map(box => Math.round(box.top))).size).toBe(1);

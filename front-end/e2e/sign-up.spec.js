@@ -3,7 +3,7 @@ import { test, expect, fillSignUpForm, postComment } from './fixtures.js';
 test.describe('sign-up display name', () => {
   test('rejects a blank name without creating an account', async ({ page, firebase }) => {
     await fillSignUpForm(page, { displayName: '    ' });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page.getByText('Please enter a display name.')).toBeVisible();
     expect(firebase.calls).not.toContain('accounts:signUp');
@@ -12,7 +12,7 @@ test.describe('sign-up display name', () => {
 
   test('rejects a name over 50 characters without creating an account', async ({ page, firebase }) => {
     await fillSignUpForm(page, { displayName: 'x'.repeat(51) });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page.getByText('Display names can be at most 50 characters.')).toBeVisible();
     expect(firebase.calls).not.toContain('accounts:signUp');
@@ -20,7 +20,7 @@ test.describe('sign-up display name', () => {
 
   test('still requires matching passwords', async ({ page, firebase }) => {
     await fillSignUpForm(page, { displayName: 'Bob', confirmPassword: 'different' });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page.getByText("The passwords don't match.")).toBeVisible();
     expect(firebase.calls).not.toContain('accounts:signUp');
@@ -28,7 +28,7 @@ test.describe('sign-up display name', () => {
 
   test('saves the trimmed name, shows it in the nav and on the first comment', async ({ page, firebase, api }) => {
     await fillSignUpForm(page, { displayName: '  Bob Jones  ' });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page).toHaveURL(/\/articles$/);
     await expect(page.locator('nav')).toContainText('Logged in as Bob Jones');
@@ -47,7 +47,7 @@ test.describe('sign-up display name', () => {
     firebase.profileUpdateReturnsToken = false;
 
     await fillSignUpForm(page, { displayName: 'Bob Jones' });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
     await expect(page.locator('nav')).toContainText('Logged in as Bob Jones');
 
     await postComment(page, 'learn-react', 'First!');
@@ -60,7 +60,7 @@ test.describe('sign-up display name', () => {
     firebase.failProfileUpdate = true;
 
     await fillSignUpForm(page, { displayName: 'Bob Jones' });
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page).toHaveURL(/\/profile$/);
     await expect(page.getByText("Your account was created, but your display name couldn't be saved. Please set it here.")).toBeVisible();

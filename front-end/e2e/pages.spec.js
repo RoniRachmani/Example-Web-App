@@ -45,7 +45,7 @@ test.describe('pages', () => {
     test(`auth controls have readable text and visible toggle borders in ${colorScheme} mode`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await page.goto('/login');
-      for (const button of [page.getByRole('button', { name: 'Log In', exact: true }), page.getByRole('button', { name: 'Show password' })]) {
+      for (const button of [page.getByRole('button', { name: 'Log in', exact: true }), page.getByRole('button', { name: 'Show password' })]) {
         const colors = await button.evaluate(element => {
           const style = getComputedStyle(element);
           return { text: style.color, background: style.backgroundColor, border: style.borderColor };
@@ -86,7 +86,7 @@ test.describe('pages', () => {
   test('a broken link still shows the nav bar and a way back to the articles', async ({ page }) => {
     await page.goto('/articles/no-such-article');
 
-    await expect(page.getByRole('heading', { name: 'Page Not Found' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible();
     await expect(page.locator('nav').getByRole('link', { name: 'Home' })).toBeVisible();
     await page.getByRole('link', { name: 'Browse the articles' }).click();
     await expect(page).toHaveURL(/\/articles$/);
@@ -121,6 +121,18 @@ test.describe('pages', () => {
     await expect(page.locator('a.article-link p.article-details').first()).toHaveText(/^\d+ min read$/);
   });
 
+  test('still shows an article when its upvotes and comments cannot be loaded', async ({ page }) => {
+    await page.route('**/api/articles/learn-react', route => route.fulfill({ status: 500 }));
+    await page.goto('/articles/learn-react');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'The Fastest Way to Learn React' })).toBeVisible();
+    await expect(page.getByText('Start with the JavaScript that React leans on')).toBeVisible();
+    await expect(page.getByText("Upvotes and comments couldn't be loaded.")).toBeVisible();
+    await expect(page.getByText(/This article has \d+ upvote/)).toHaveCount(0);
+    await expect(page.getByText('No comments yet.')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Page not found' })).toHaveCount(0);
+  });
+
   test('the home page leads with the most upvoted articles and links to the rest', async ({ page, api }) => {
     api.db.docs.push({ name: 'mongodb', upvotes: 5, upvoteIds: [], comments: [] });
     await page.goto('/');
@@ -146,9 +158,9 @@ test.describe('pages', () => {
       '/about': 'About | Blogify',
       '/articles': 'Articles | Blogify',
       '/articles/learn-react': 'The Fastest Way to Learn React | Blogify',
-      '/login': 'Log In | Blogify',
-      '/create-account': 'Create Account | Blogify',
-      '/no-such-page': 'Page Not Found | Blogify',
+      '/login': 'Log in | Blogify',
+      '/create-account': 'Create account | Blogify',
+      '/no-such-page': 'Page not found | Blogify',
     };
 
     for (const [path, title] of Object.entries(titles)) {

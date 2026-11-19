@@ -79,8 +79,8 @@ export default function CreateAccountPage() {
 
   return (
     <>
-    <title>Create Account | Blogify</title>
-    <h1>Create Account</h1>
+    <title>Create account | Blogify</title>
+    <h1>Create account</h1>
     <AuthContext state={state} creating />
     <form className='auth-form' noValidate onSubmit={createAccount}>
       {error && <p role='alert' className='form-error'>{error}</p>}
@@ -120,9 +120,9 @@ export default function CreateAccountPage() {
         error={fieldErrors.confirmPassword}
         value={confirmPassword}
         onChange={e => setConfirmPassword(e.target.value)} />
-      <button type='submit' disabled={isSubmitting}>Create Account</button>
+      <button type='submit' disabled={isSubmitting}>Create account</button>
     </form>
-    <p><Link to='/login' state={state}>Already have an account? Log In</Link></p>
+    <p><Link to='/login' state={state}>Already have an account? Log in</Link></p>
     </>
   );
 }

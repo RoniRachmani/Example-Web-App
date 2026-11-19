@@ -26,7 +26,7 @@ test.describe('comment form', () => {
 
   test('keeps the button disabled for an empty or whitespace-only comment', async ({ page, firebase }) => {
     await openArticleSignedIn(page, firebase);
-    const button = page.getByRole('button', { name: 'Add Comment' });
+    const button = page.getByRole('button', { name: 'Add comment' });
 
     await expect(button).toBeDisabled();
     await page.getByLabel('Comment', { exact: true }).fill('    ');
@@ -36,7 +36,7 @@ test.describe('comment form', () => {
   test('allows 1000 characters and blocks 1001 with a message', async ({ page, firebase, api }) => {
     await openArticleSignedIn(page, firebase);
     const input = page.getByLabel('Comment', { exact: true });
-    const button = page.getByRole('button', { name: 'Add Comment' });
+    const button = page.getByRole('button', { name: 'Add comment' });
 
     await input.fill('x'.repeat(1000));
     await expect(button).toBeEnabled();
@@ -55,7 +55,7 @@ test.describe('comment form', () => {
 
     await page.getByLabel('Comment', { exact: true }).fill(emoji);
     await expect(page.getByText(/Comments can be at most/)).toHaveCount(0);
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
 
     await expect.poll(() => api.posted.length).toBe(1);
     expect(api.posted[0].text).toBe(emoji);
@@ -68,7 +68,7 @@ test.describe('comment form', () => {
     await expect(page.getByText('No comments yet.')).toBeVisible();
 
     await page.getByLabel('Comment', { exact: true }).fill('  Great article!  ');
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
 
     await expect(page.getByRole('heading', { name: 'Alice' })).toBeVisible();
     await expect(page.getByText('Great article!')).toBeVisible();
@@ -76,7 +76,7 @@ test.describe('comment form', () => {
     await expect(page.locator('.comment time')).toHaveText(today);
     await expect(page.getByText('No comments yet.')).toHaveCount(0);
     await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('');
-    await expect(page.getByRole('button', { name: 'Add Comment' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Add comment' })).toBeDisabled();
     expect(api.posted).toEqual([expect.objectContaining({ postedBy: 'Alice', text: 'Great article!' })]);
   });
 
@@ -84,7 +84,7 @@ test.describe('comment form', () => {
     await openArticleSignedIn(page, firebase);
 
     await page.getByLabel('Comment', { exact: true }).fill('Hello');
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
 
     await expect(page.getByRole('heading', { name: 'Anonymous' })).toBeVisible();
     await expect(page.locator('main')).not.toContainText('alice@example.com');
@@ -96,7 +96,7 @@ test.describe('comment form', () => {
 
     for (const count of [1, 2]) {
       await page.getByLabel('Comment', { exact: true }).fill('Great article!');
-      await page.getByRole('button', { name: 'Add Comment' }).click();
+      await page.getByRole('button', { name: 'Add comment' }).click();
       await expect(page.getByText('Great article!')).toHaveCount(count);
       // The form clears just after the comment appears. Wait for that, or the
       // next fill can land first and be wiped.
@@ -112,16 +112,16 @@ test.describe('comment form', () => {
     await page.route('**/api/articles/learn-react/comments', route => route.fulfill({ status: 429, body: 'Too Many Requests' }));
 
     await page.getByLabel('Comment', { exact: true }).fill('Please keep me');
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
 
     await expect(page.getByRole('alert')).toHaveText("Your comment couldn't be posted. You're doing that too often, so please wait a few minutes.");
     await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('Please keep me');
-    await expect(page.getByRole('button', { name: 'Add Comment' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Add comment' })).toBeEnabled();
     expect(api.posted).toHaveLength(0);
 
     // Posting works again once the server accepts it, and the message goes away.
     await page.unroute('**/api/articles/learn-react/comments');
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
     await expect(page.getByText('Please keep me', { exact: true }).last()).toBeVisible();
     await expect(page.getByLabel('Comment', { exact: true })).toHaveValue('');
     await expect(page.getByRole('alert')).toHaveCount(0);
@@ -132,12 +132,12 @@ test.describe('comment form', () => {
     await openArticleSignedIn(page, firebase);
 
     await page.getByLabel('Comment', { exact: true }).fill('first line\nsecond line');
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
     // innerText is the text as laid out: a collapsed line break would be a space
     await expect.poll(() => page.locator('.comment p').last().evaluate(p => p.innerText)).toBe('first line\nsecond line');
 
     await page.getByLabel('Comment', { exact: true }).fill('x'.repeat(300));
-    await page.getByRole('button', { name: 'Add Comment' }).click();
+    await page.getByRole('button', { name: 'Add comment' }).click();
     await expect(page.getByText('x'.repeat(300))).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
   });

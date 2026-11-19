@@ -14,11 +14,10 @@ export default function HomePage() {
   return (
     <>
     <title>Blogify | Read. Write. React.</title>
-    <h1>Welcome to Blogify</h1>
+    <h1>Short, practical guides to full-stack JavaScript</h1>
     <p>
-      Short, practical articles on building full-stack JavaScript apps with React,
-      Node.js and MongoDB. Each one gets you from zero to something that works,
-      then points you to what to learn next.
+      Learn React, Node.js and MongoDB by building with them. Each article gets
+      you from zero to something that works, then points you to what to learn next.
     </p>
     <p>
       <Link to='/create-account'>Create a free account</Link> to upvote the articles

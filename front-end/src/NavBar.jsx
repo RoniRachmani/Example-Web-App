@@ -6,7 +6,8 @@ export default function NavBar() {
   const { isLoading, user } = useUser();
 
   // NavLink marks the link to the current page with aria-current="page",
-  // which the styles in index.css pick up.
+  // which the styles in index.css pick up. The first account item gets
+  // `nav-account`, which pushes it and everything after it to the right.
   return (
     <nav aria-label='Main'>
       <ul>
@@ -19,11 +20,11 @@ export default function NavBar() {
         <li>
           <NavLink to='/articles'>Articles</NavLink>
         </li>
-        {isLoading ? <li>Loading...</li> : (
+        {isLoading ? <li className='nav-account nav-user'>Loading...</li> : (
           <>
           {user && (
             <>
-            <li className='nav-user' style={{ color: 'white' }}>
+            <li className='nav-account nav-user'>
               Logged in as {user.displayName || user.email}
             </li>
             <li>
@@ -31,14 +32,13 @@ export default function NavBar() {
             </li>
             </>
           )}
-          <li>
+          <li className={user ? undefined : 'nav-account'}>
             {user
-              ? <button onClick={() => signOut(getAuth())}>Log Out</button>
-              : <NavLink to='/login'>Log In</NavLink>}
+              ? <button onClick={() => signOut(getAuth())}>Log out</button>
+              : <NavLink to='/login'>Log in</NavLink>}
           </li>
           </>
         )}
-
       </ul>
     </nav>
   )

@@ -33,8 +33,8 @@ test.describe('profile page', () => {
     await page.reload();
     await expect(page.locator('nav')).toContainText('Logged in as Alice Smith');
 
-    await page.getByRole('button', { name: 'Log Out' }).click();
-    await expect(page.locator('nav').getByRole('link', { name: 'Log In' })).toBeVisible();
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await expect(page.locator('nav').getByRole('link', { name: 'Log in' })).toBeVisible();
     await expect(page.locator('nav')).not.toContainText('Logged in as');
   });
 

@@ -12,7 +12,7 @@ test.describe('log-in and sign-up forms', () => {
     await page.getByLabel('Password', { exact: true }).press('Enter');
 
     await expect(page).toHaveURL(/\/articles$/);
-    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
   });
 
   test('says the email or password is wrong, without Firebase error codes', async ({ page, firebase }) => {
@@ -21,7 +21,7 @@ test.describe('log-in and sign-up forms', () => {
 
     await page.getByLabel('Email').fill(account.email);
     await page.getByLabel('Password', { exact: true }).fill('wrong password');
-    await page.getByRole('button', { name: 'Log In' }).click();
+    await page.getByRole('button', { name: 'Log in' }).click();
 
     await expect(page.getByRole('alert')).toHaveText('Incorrect email or password.');
     await expect(page).toHaveURL(/\/login$/);
@@ -29,7 +29,7 @@ test.describe('log-in and sign-up forms', () => {
 
   test('points out empty fields next to them, without asking Firebase', async ({ page, firebase }) => {
     await page.goto('/login');
-    await page.getByRole('button', { name: 'Log In' }).click();
+    await page.getByRole('button', { name: 'Log in' }).click();
 
     const email = page.getByLabel('Email');
     await expect(email).toHaveAttribute('aria-invalid', 'true');
@@ -43,7 +43,7 @@ test.describe('log-in and sign-up forms', () => {
     await page.goto('/login');
     await page.getByLabel('Email').fill('alice');
     await page.getByLabel('Password', { exact: true }).fill(account.password);
-    await page.getByRole('button', { name: 'Log In' }).click();
+    await page.getByRole('button', { name: 'Log in' }).click();
 
     await expect(page.getByLabel('Email')).toHaveAccessibleDescription('Please enter a valid email address.');
     expect(firebase.calls).not.toContain('accounts:signInWithPassword');
@@ -59,10 +59,10 @@ test.describe('log-in and sign-up forms', () => {
     await expect(page.getByRole('link', { name: 'Back to article' })).toHaveAttribute('href', '/articles/learn-react#comments');
     await page.getByRole('link', { name: 'Forgot your password?' }).click();
     await page.getByRole('link', { name: 'Back to log in' }).click();
-    await expect(page).toHaveTitle('Log In | Blogify');
+    await expect(page).toHaveTitle('Log in | Blogify');
     await page.getByLabel('Email').fill(account.email);
     await page.getByLabel('Password', { exact: true }).fill(account.password);
-    await page.getByRole('button', { name: 'Log In' }).click();
+    await page.getByRole('button', { name: 'Log in' }).click();
 
     await expect(page).toHaveURL(/\/articles\/learn-react#comments$/);
     await expect(page.locator('#comments')).toBeFocused();
@@ -74,7 +74,7 @@ test.describe('log-in and sign-up forms', () => {
     await expect(page.getByLabel('Password', { exact: true })).toHaveAccessibleDescription('At least 6 characters.');
 
     await page.getByLabel('Password', { exact: true }).fill('abc');
-    await page.getByRole('button', { name: 'Create Account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     await expect(page.getByText('Please enter a display name.')).toBeVisible();
     await expect(page.getByText('Please enter your email address.')).toBeVisible();
@@ -86,14 +86,14 @@ test.describe('log-in and sign-up forms', () => {
   test('sends a password reset link from the log-in page', async ({ page, firebase }) => {
     await page.goto('/login');
     await page.getByRole('link', { name: 'Forgot your password?' }).click();
-    await expect(page).toHaveTitle('Reset Password | Blogify');
+    await expect(page).toHaveTitle('Reset password | Blogify');
 
-    await page.getByRole('button', { name: 'Send Reset Link' }).click();
+    await page.getByRole('button', { name: 'Send reset link' }).click();
     await expect(page.getByLabel('Email')).toHaveAccessibleDescription('Please enter your email address.');
     expect(firebase.calls).not.toContain('accounts:sendOobCode');
 
     await page.getByLabel('Email').fill(account.email);
-    await page.getByRole('button', { name: 'Send Reset Link' }).click();
+    await page.getByRole('button', { name: 'Send reset link' }).click();
 
     await expect(page.getByRole('status')).toHaveText("If there's an account for alice@example.com, we've emailed a link to reset its password.");
     expect(firebase.calls).toContain('accounts:sendOobCode');
@@ -117,7 +117,7 @@ test.describe('log-in and sign-up forms', () => {
     await page.getByLabel('Confirm password', { exact: true }).press('Enter');
 
     await expect(page.getByRole('alert')).toHaveText('An account with this email already exists. Try logging in instead.');
-    await expect(page.getByRole('button', { name: 'Create Account' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Create account' })).toBeEnabled();
   });
 });
 
@@ -136,7 +136,7 @@ test('preserves article context through signup and returns to comments', async (
   await expect(page.getByRole('button', { name: 'Show password', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Show password', exact: true }).click();
   await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'password');
-  await page.getByRole('button', { name: 'Create Account', exact: true }).click();
+  await page.getByRole('button', { name: 'Create account', exact: true }).click();
   await expect(page).toHaveURL(/learn-react#comments$/);
   await expect(page.locator('#comments')).toBeFocused();
   await expect(page.getByLabel('Comment', { exact: true })).toBeVisible();

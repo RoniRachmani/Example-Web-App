@@ -34,7 +34,7 @@ export default function AddCommentForm({ onAddComment }) {
       <textarea id='comment-text' rows={4} value={commentText} onChange={e => setCommentText(e.target.value)} />
       {isTooLong && <p>Comments can be at most {MAX_COMMENT_LENGTH} characters ({length} now).</p>}
       {error && <p role='alert' className='form-error'>{error}</p>}
-      <button type='submit' disabled={!length || isTooLong || isPosting}>Add Comment</button>
+      <button type='submit' disabled={!length || isTooLong || isPosting}>Add comment</button>
     </form>
   )
 }
