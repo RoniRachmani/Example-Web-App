@@ -7,7 +7,7 @@ import AddCommentForm from '../AddCommentForm';
 import articles from '../article-content';
 import useUser from '../useUser';
 import { apiErrorMessage } from '../errorMessages';
-import { readingMinutes } from '../articleStats';
+import { countOf, readingMinutes } from '../articleStats';
 
 async function authHeaders(user) {
   const token = user && await user.getIdToken();
@@ -67,24 +67,27 @@ export default function ArticlePage() {
     <>
     <title>{`${article.title} | Blogify`}</title>
     <h1>{article.title}</h1>
-    <p className='article-details'>{readingMinutes(article)} min read</p>
-    {!data.unavailable && (
-      <>
-      {user && (
-        <button className='button-primary' disabled={upvoted || isUpvoting} onClick={onUpvoteClicked}>
-          {upvoted ? 'Upvoted' : 'Upvote'}
-        </button>
-      )}
-      {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
-      <p>This article has {upvotes} {upvotes === 1 ? 'upvote' : 'upvotes'}</p>
-      {!isLoading && !user && <p>{logInLink()} to upvote this article.</p>}
-      </>
-    )}
+    <p className='article-details'>
+      {readingMinutes(article)} min read
+      {!data.unavailable && ` · ${countOf(upvotes, 'upvote')}`}
+    </p>
     {article.content.map(p => <p key={p}>{p.split(/(`[^`]+`|react\.dev)/g).map((part, index) =>
       // The paragraph is static editorial text; fragments never change order.
       // eslint-disable-next-line @eslint-react/no-array-index-key
       <span key={index}>{part.startsWith('`') ? <code>{part.slice(1, -1)}</code> : part === 'react.dev' ? <a href='https://react.dev/learn'>react.dev</a> : part}</span>
     )}</p>)}
+    {/* Asked for once the visitor has read the article, not before */}
+    {!data.unavailable && (
+      <div className='article-upvote'>
+        {user && (
+          <button className='button-primary' disabled={upvoted || isUpvoting} onClick={onUpvoteClicked}>
+            {upvoted ? 'Upvoted' : 'Upvote'}
+          </button>
+        )}
+        {upvoteError && <p role='alert' className='form-error'>{upvoteError}</p>}
+        {!isLoading && !user && <p>{logInLink()} to upvote this article.</p>}
+      </div>
+    )}
     <p><Link to='/articles'>Back to all articles</Link></p>
     <section id='comments' ref={conversationRef} tabIndex={-1} aria-labelledby='comments-heading'>
     <h2 id='comments-heading'>Comments</h2>

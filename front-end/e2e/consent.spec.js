@@ -72,4 +72,12 @@ test.describe('analytics consent', () => {
 
     await expect(page.getByRole('complementary', { name: 'Cookie consent' })).toBeVisible();
   });
+
+  test('the footer button is tall enough to tap on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 720 });
+    await page.goto('/');
+
+    const box = await page.getByRole('button', { name: 'Cookie settings' }).boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  });
 });

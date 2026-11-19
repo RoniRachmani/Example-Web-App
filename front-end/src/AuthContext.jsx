@@ -11,5 +11,5 @@ export default function AuthContext({ state, creating = false }) {
       <p>{creating ? 'Create an account' : 'Log in'} to {destination.endsWith('#comments') ? 'comment on' : 'upvote'} <strong>{article.title}</strong>. You’ll return here after {creating ? 'signing up' : 'logging in'}.</p>
       <p><Link to={destination}>Back to article</Link></p>
     </>
-  ) : creating ? <p>Create a free account to comment on articles and upvote your favorites.</p> : null;
+  ) : creating ? <p>Create a free account to comment on articles and upvote your favourites.</p> : null;
 }
