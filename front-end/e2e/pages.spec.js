@@ -81,6 +81,16 @@ test.describe('pages', () => {
         expect(contrast(color, background), `${color} on ${background}`).toBeGreaterThanOrEqual(4.5);
       }
     });
+
+    test(`the wordmark icon stands out from the page in ${colorScheme} mode`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      await page.goto('/');
+
+      const background = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+      const fill = await page.locator('a.wordmark svg').evaluate(svg => getComputedStyle(svg).fill);
+      // 3:1 is the WCAG minimum for meaningful graphics
+      expect(contrast(fill, background), `${fill} on ${background}`).toBeGreaterThanOrEqual(3);
+    });
   }
 
   test('a broken link still shows the nav bar and a way back to the articles', async ({ page }) => {

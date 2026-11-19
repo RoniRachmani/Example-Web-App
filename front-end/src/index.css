@@ -240,9 +240,12 @@ a.wordmark {
   text-decoration: none;
 }
 
-a.wordmark img {
+a.wordmark svg {
+  flex: none;
   width: 24px;
   height: 24px;
+  fill: currentColor;
+  color: var(--accent);
 }
 
 nav {

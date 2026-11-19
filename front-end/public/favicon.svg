@@ -3,6 +3,11 @@
     <style>
       .primary { fill: #2563eb; }
       .secondary { fill: #1d4ed8; }
+      /* Lighter on a dark browser tab strip, matching the dark theme's accent */
+      @media (prefers-color-scheme: dark) {
+        .primary { fill: #a3c2ff; }
+        .secondary { fill: #7aa7ff; }
+      }
     </style>
   </defs>
   <!-- Book base -->
