@@ -39,7 +39,7 @@ In Claude Code on the web, the SessionStart hook (`.claude/hooks/session-start.s
 The back end won't start without these gitignored files. Never create, print or commit their contents:
 
 - `back-end/credentials.json`: Firebase service account key, read at startup
-- `back-end/.env`: `MONGODB_USERNAME` and `MONGODB_PASSWORD` for the maintenance scripts (`npm run dev` reads them from 1Password instead, so it doesn't need this file)
+- `back-end/.env`: not needed day to day; `npm run dev`, `backup-db` and `anonymize-emails` read `MONGODB_USERNAME` and `MONGODB_PASSWORD` from 1Password with `op run --env-file=.env.tpl`. Only `secrets:push` reads it: pull, edit, push, then delete it
 - `back-end/prod-env.yaml`: the same variables for App Engine, included by `app.yaml`
 
 All three are kept in 1Password (Blogify Inc. vault). `npm run secrets:pull` in `back-end/` rebuilds them, using the committed `.env.tpl` and `prod-env.yaml.tpl` (references only, no values). After a key is added, changed or removed, or `credentials.json` is replaced, `npm run secrets:push` (`scripts/secrets-1password.js`) updates 1Password and the `.tpl` files; commit the `.tpl` changes. `.env` and `prod-env.yaml` are separate items so local-only keys never reach App Engine.

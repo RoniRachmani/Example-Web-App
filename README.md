@@ -93,7 +93,7 @@ These files are gitignored. Never commit them.
 | File | Used for | Contents |
 | ---- | -------- | -------- |
 | `back-end/credentials.json` | Firebase Admin, to verify sign-in tokens | A Firebase service account key (Firebase console → Project settings → Service accounts → Generate new private key) |
-| `back-end/.env` | The maintenance scripts (`npm run dev` reads 1Password directly and doesn't need it) | `MONGODB_USERNAME=...` and `MONGODB_PASSWORD=...` |
+| `back-end/.env` | Nothing day to day: `npm run dev` and the maintenance scripts read 1Password through `op run`. Only `npm run secrets:push` reads it, so pull it to change a key, push, then delete it | `MONGODB_USERNAME=...` and `MONGODB_PASSWORD=...` |
 | `back-end/prod-env.yaml` | App Engine deploys (included by `app.yaml`) | The same two variables, under `env_variables:` |
 
 All three are kept in 1Password, in the Blogify Inc. vault: `.env` and `prod-env.yaml` as the items "Blogify back-end env" and "Blogify back-end prod env", and `credentials.json` as the document "Blogify back-end credentials.json". The committed `back-end/.env.tpl` and `back-end/prod-env.yaml.tpl` hold no secrets, only references to those fields. With the [1Password CLI](https://developer.1password.com/docs/cli/) signed in, rebuild all three files from `back-end/`:
@@ -149,7 +149,7 @@ cd front-end && npm run dev   # App on http://localhost:5173, proxies /api to th
 | `back-end`  | `npm test`        | Run the API tests. They use in-memory fakes, so no database or secrets are needed |
 | `back-end`  | `npm run dev`     | Start the API with `node --watch`, with `MONGODB_USERNAME`/`MONGODB_PASSWORD` injected from 1Password by `op run --env-file=.env.tpl` (needs the 1Password CLI signed in) |
 | `back-end`  | `npm start`       | Start the API (what App Engine runs) |
-| `back-end`  | `npm run anonymize-emails` | One-off clean-up: count the comments whose author is shown as an email address, which older versions saved for users without a display name. Add `-- --apply` to replace them with "Anonymous". Uses the same `.env` or `MONGODB_URI` as the server |
+| `back-end`  | `npm run anonymize-emails` | One-off clean-up: count the comments whose author is shown as an email address, which older versions saved for users without a display name. Add `-- --apply` to replace them with "Anonymous". Reads `MONGODB_*` from 1Password with `op run`, or `MONGODB_URI` |
 
 ## API
 

@@ -2,7 +2,7 @@
 // with the author's email address as postedBy. This replaces every postedBy that
 // looks like an email address with the placeholder name the server uses now.
 //
-// Run from back-end/, with the same .env (or MONGODB_URI) as the server:
+// Run from back-end/; the npm script reads MONGODB_* from 1Password with op run (or set MONGODB_URI):
 //   npm run anonymize-emails              # dry run: only counts the comments
 //   npm run anonymize-emails -- --apply   # replaces them
 import dotenv from 'dotenv';
