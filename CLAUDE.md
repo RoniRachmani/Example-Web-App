@@ -23,7 +23,7 @@ npm run build    # outputs front-end/dist
 npm run test:e2e # Playwright browser tests against the production build; Firebase is faked, /api is the real back end
 
 # back-end/
-npm run dev      # node --watch on :8000
+npm run dev      # node --watch on :8000, with MONGODB_* injected from 1Password by `op run --env-file=.env.tpl`
 npm start
 npm test         # node:test API tests with in-memory fakes; no DB or secrets needed
 ```
@@ -39,7 +39,7 @@ In Claude Code on the web, the SessionStart hook (`.claude/hooks/session-start.s
 The back end won't start without these gitignored files. Never create, print or commit their contents:
 
 - `back-end/credentials.json`: Firebase service account key, read at startup
-- `back-end/.env`: `MONGODB_USERNAME` and `MONGODB_PASSWORD` for local dev
+- `back-end/.env`: `MONGODB_USERNAME` and `MONGODB_PASSWORD` for the maintenance scripts (`npm run dev` reads them from 1Password instead, so it doesn't need this file)
 - `back-end/prod-env.yaml`: the same variables for App Engine, included by `app.yaml`
 
 All three are kept in 1Password (Blogify Inc. vault). `npm run secrets:pull` in `back-end/` rebuilds them, using the committed `.env.tpl` and `prod-env.yaml.tpl` (references only, no values). After a key is added, changed or removed, or `credentials.json` is replaced, `npm run secrets:push` (`scripts/secrets-1password.js`) updates 1Password and the `.tpl` files; commit the `.tpl` changes. `.env` and `prod-env.yaml` are separate items so local-only keys never reach App Engine.

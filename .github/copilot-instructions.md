@@ -10,7 +10,7 @@ This is Blogify, a full-stack blog app: a React front end (Vite) and a Node.js/E
 ### Development Flow
 - Install: `npm install` in both `back-end/` and `front-end/`
 - Run locally: `npm run dev` in `back-end/` (API on port 8000) and in `front-end/` (Vite on port 5173, proxying `/api` to the back end)
-- The back end needs two gitignored files, `back-end/credentials.json` (Firebase service account key) and `back-end/.env` (`MONGODB_USERNAME` and `MONGODB_PASSWORD`, or `MONGODB_URI`). Never commit them or `back-end/prod-env.yaml`.
+- The back end needs the gitignored `back-end/credentials.json` (Firebase service account key) and `MONGODB_USERNAME`/`MONGODB_PASSWORD`, which `npm run dev` injects from 1Password with `op run --env-file=.env.tpl` (the maintenance scripts read them from the gitignored `back-end/.env`; `MONGODB_URI` works instead for either). Never commit them or `back-end/prod-env.yaml`.
 
 ## Repository Structure
 - `back-end/src/app.js`: Express routes, built by `createApp({ db, verifyIdToken })`
