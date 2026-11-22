@@ -44,6 +44,8 @@ The back end won't start without these gitignored files. Never create, print or 
 
 All three are kept in 1Password (Blogify Inc. vault). `npm run secrets:pull` in `back-end/` rebuilds them, using the committed `.env.tpl` and `prod-env.yaml.tpl` (references only, no values). After a key is added, changed or removed, or `credentials.json` is replaced, `npm run secrets:push` (`scripts/secrets-1password.js`) updates 1Password and the `.tpl` files; commit the `.tpl` changes. `.env` and `prod-env.yaml` are separate items so local-only keys never reach App Engine.
 
+For agents, the 1Password setup from `https://www.1password.dev/agent-setup/prompt.md` is done at user level on the owner's Mac: the `op` CLI, signed in through the 1Password desktop app, and the `1password@anthropic-plugin-directory` Claude Code plugin (an MCP server for 1Password Environments and the `1password:1password-environments` skill). Don't reinstall them. Use `op` through the npm scripts above, and never read or print a secret's value. If `op` or the plugin's `authenticate` fails, ask the owner to unlock 1Password and turn on Settings → Developer → "Integrate with 1Password CLI" and "Integrate with MCP clients"; don't change 1Password settings yourself. None of this is available in Claude Code on the web.
+
 The Firebase *web* config in `front-end/src/firebase.js` is public by design and is not a secret.
 
 ## Conventions
