@@ -21,6 +21,9 @@ npm-debug.log
 # Development files
 terminal.html
 
+# cf CLI cache (account details)
+.cloudflare/
+
 # Front-end test output (Playwright)
 front-end/playwright-report/
 front-end/test-results/
