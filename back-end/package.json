@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
-    "dev": "node --watch src/server.js",
+    "dev": "op run --env-file=.env.tpl -- node --watch src/server.js",
     "start": "node src/server.js",
-    "anonymize-emails": "node scripts/anonymize-comment-emails.js",
-    "backup-db": "node scripts/backup-db.js",
+    "anonymize-emails": "op run --env-file=.env.tpl -- node scripts/anonymize-comment-emails.js",
+    "backup-db": "op run --env-file=.env.tpl -- node scripts/backup-db.js",
     "secrets:push": "node scripts/secrets-1password.js push",
     "secrets:pull": "node scripts/secrets-1password.js pull"
   },
@@ -17,12 +17,12 @@
   "license": "MIT",
   "description": "Express API for Blogify: serves the built front end and the articles API backed by MongoDB and Firebase Auth",
   "dependencies": {
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "express": "^5.3.0",
-    "express-rate-limit": "^8.7.3",
-    "firebase-admin": "^14.5.0",
+    "express-rate-limit": "^8.7.4",
+    "firebase-admin": "^14.5.1",
     "helmet": "^8.3.0",
-    "mongodb": "^7.8.0"
+    "mongodb": "^7.9.0"
   },
   "overrides": {
     "@grpc/grpc-js": "1.14.5",

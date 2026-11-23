@@ -1,7 +1,7 @@
 // Saves a copy of the app's database with mongodump, because the free Atlas
 // tier keeps no backups of its own. Needs the MongoDB Database Tools
 // (`brew install mongodb-database-tools`). Run from back-end/, with the same
-// .env (or MONGODB_URI) as the server:
+// 1Password references (op run --env-file=.env.tpl, or MONGODB_URI) as the server:
 //   npm run backup-db   # writes backups/full-stack-react-db-<time>.archive.gz
 //
 // The archive holds every article document, commenters' uids included, so it
@@ -36,7 +36,7 @@ export function mongodumpArgs(configPath, archivePath) {
 if (import.meta.main) {
   dotenv.config();
   if (!process.env.MONGODB_URI && !(process.env.MONGODB_USERNAME && process.env.MONGODB_PASSWORD)) {
-    console.error('Set MONGODB_URI, or MONGODB_USERNAME and MONGODB_PASSWORD in .env (npm run secrets:pull).');
+    console.error('Set MONGODB_URI, or MONGODB_USERNAME and MONGODB_PASSWORD (npm run backup-db reads them from 1Password with op run).');
     process.exit(1);
   }
 
